@@ -9,6 +9,7 @@ class Record {
         string tconst;        
         double averageRating;
         int numVotes;
+        
     public:
         static const int RECORD_SIZE = 22; //10+8+4
 
