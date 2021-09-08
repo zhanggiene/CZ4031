@@ -1,41 +1,35 @@
-
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <algorithm>
+#include <iterator>
+#include <vector>
+
 
 using namespace std;
 class Record {       
-    private:             
-        string tconst;        
-        double averageRating;
+    public:             
+        char tconst[11];     // 10+1
+        float rating;
         int numVotes;
-    public:
-        static const int RECORD_SIZE = 22; //10+8+4
 
-        Record(string tconst, double averageRating, int numVotes){
-            this->tconst = tconst;
-            this->averageRating = averageRating;
-            this->numVotes = numVotes;
-        }
+    Record(string s){
+    
+    vector<string> tokens;
+    istringstream iss(s);
+    copy(istream_iterator<string>(iss), istream_iterator<string>(), back_inserter(tokens));
 
-        void setTconst(string tconst){
-            this->tconst = tconst;
-        }
+    strcpy(tconst, tokens[0].c_str());
+    rating=stof(tokens[1]);
+    numVotes=stoi(tokens[2]);
 
-        void setAverageRating(double averageRating){
-            this->averageRating = averageRating;
-        }
-
-        void setNumVotes(int numVotes){
-            this->numVotes = numVotes;
-        }
-
-        string getTconst(){
+    }
+    string getTconst(){
             return this->tconst;
         }
 
-        double getAverageRating(){
-            return this->averageRating;
+        double Rating(){
+            return this->rating;
         }
 
         int getNumVotes(){
@@ -44,7 +38,11 @@ class Record {
 
         string toString(){
             ostringstream out;
-            out << this->tconst << "\t" << this->averageRating << "\t" << this->numVotes<<"\n";
+            out << this->tconst << "\t" << this->rating << "\t" << this->numVotes<<"\n";
             return out.str();
         }
+
+
+        
+
 };
