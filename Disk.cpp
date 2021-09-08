@@ -19,11 +19,7 @@ class Disk
     Disk (){
         blocks.push_back(Block());
 
-
-
     }
-
-
 
     void readBlock(int blockid)
     {
@@ -53,7 +49,7 @@ class Disk
          //cout<<"the record Id is "<<recordId<<"-------";
         if (recordId==-1)
         {
-            cout<<"overflow";
+            // cout<<"disk overflow \n";
             blocks.push_back(Block());
             recordId=blocks.back().add(temp);
         }

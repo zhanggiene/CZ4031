@@ -4,8 +4,9 @@
 #include <algorithm>
 #include <iterator>
 #include <vector>
+#include <string.h>
 
-
+//Written by LR & ZY
 using namespace std;
 class Record {       
     public:             

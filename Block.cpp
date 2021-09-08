@@ -6,49 +6,9 @@
 #include <iterator>
 #include <vector>
 #include <utility>
+#include "record.cpp"
+
 using namespace std;
-
-class Record {       
-    public:             
-        char tconst[11];     // 10+1
-        float rating;
-        int numVotes;
-
-    Record(string s){
-    
-    vector<string> tokens;
-    istringstream iss(s);
-    copy(istream_iterator<string>(iss), istream_iterator<string>(), back_inserter(tokens));
-
-    strcpy(tconst, tokens[0].c_str());
-    rating=stof(tokens[1]);
-    numVotes=stoi(tokens[2]);
-
-    }
-    string getTconst(){
-            return this->tconst;
-        }
-
-        double Rating(){
-            return this->rating;
-        }
-
-        int getNumVotes(){
-            return this->numVotes;
-        }
-
-        string toString(){
-            ostringstream out;
-            out << this->tconst << "\t" << this->rating << "\t" << this->numVotes<<"\n";
-            return out.str();
-        }
-
-
-        
-
-};
-
-
 
 class Block {
     public:
@@ -71,7 +31,9 @@ class Block {
        //cout << std::boolalpha;  
        //cout<< ((lastPosition-(int)sizeof(a))< numberSlot*sizeof(int));
        //if ((lastPosition-(int)sizeof(a)) < numberSlot*sizeof(int)) { cout<<"overrrrrrrrrrflow";return -1;   }              // overflow, not possible to add more
-       if (temp1<temp2) {cout<<"overflow";return -1;}
+       if (temp1<temp2) {
+        //    cout<<"block overflow \n";
+           return -1;}
        int newslotId=0;
         while (newslotId<numberSlot && *((int *)(m+4*newslotId))!=0)      // find the empty one 
            {newslotId+=1;
@@ -126,6 +88,8 @@ class Block {
 
            cout<<".";
        }
+
+        cout<<"\n";
 
        for(int i=lastPosition;i+sizeof(Record)<=98;i+=(sizeof(Record)))
        {
