@@ -42,7 +42,7 @@ struct Node
     void printThisNode()
     {
         if (leaf==true) cout<<"i am leaf";
-        else cout<<" i am not leaf";
+        else  cout<<" i am not leaf";
         for(int i=0;i<currentSlot;i++)
         {
             cout<<keys[i]<<"|";
@@ -106,8 +106,9 @@ struct Node
     Node * insertNode(int key, void* value,Node* currentNode,Node* root)
     {
         //cout<<"inserting"<<key;
-        if (currentNode->leaf)
+        if (leaf)
         {
+            //cout<<"i am leave";
             //cout<<"node is not full";
             // found the leave node and it is not full 
         int i=currentSlot;
@@ -121,35 +122,37 @@ struct Node
         currentSlot+=1;
         }
 
-        else if (!currentNode->leaf)            // it is not a leave, recursively find the leave
+        else if (!leaf)            // it is not a leave, recursively find the leave
         {
             
             //    binary search 
             // 1 2 ***     insert 2 return 2
-            //int childIndex=upper_bound(currentNode->keys.begin(),currentNode->keys.begin()+currentNode->currentSlot,key)-currentNode->keys.begin();
-            int childrenIndex=0;
+            int childrenIndex=upper_bound(keys.begin(),keys.begin()+currentSlot,key)-keys.begin();
+            
+            /*int childrenIndex=0;
             while(childrenIndex<currentSlot && key>keys[childrenIndex])
             {
                 childrenIndex+=1;
             }
-            ((Node* )children[childrenIndex])->insertNode(key,value,this,root);   // cast to Node pointer
+            */
+            ((Node* )children[childrenIndex])->insertNode(key,value,currentNode,root);   // cast to Node pointer
 
         }
         // after the insertion,check if it is full
-        if (currentNode->leaf && currentSlot==currentNode->fullSize)
+        if (leaf && currentSlot==fullSize)
         {
             // root is full
             if (this==root)
             {
-                cout<<"root is full";
-                Node* newNode =new Node(currentNode->fullSize);
+                //cout<<"root is full";
+                Node* newNode =new Node(fullSize);
                 newNode->leaf=false;
                 newNode->children[0]=this;
                 newNode->splitChild(this);   // this means the full Node;
                 return newNode;
             }
             else{
-                currentNode->splitChild(this);      // split itself.
+                currentNode->splitChild(this);      // parent split children
             }
         }
         return root;
@@ -266,7 +269,6 @@ class bTree
              _root->keys[0]=key;
              _root->children[0]=value;
              _root->currentSlot=1;
-             //_root=_root->insertNode(key,value,_root,_root);
 
          }
          else {
@@ -293,9 +295,10 @@ int main()
     
     tree.insert(3,&c);
     tree.insert(4,&c);
-    //tree.getRoot()->printThisNode();
-    Node* temp=(Node* )tree.getRoot()->children[0];
-    temp->printThisNode();
+    tree.insert(5,&c);
+    tree.getRoot()->printThisNode();
+    //Node* temp=(Node* )tree.getRoot()->children[2];
+    //temp->printThisNode();
     //tree.insert(4,&c);
     //tree.insert(5,&c);
     //tree.insert(6,&c);
