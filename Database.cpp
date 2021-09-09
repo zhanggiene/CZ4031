@@ -78,6 +78,26 @@ class Database {
             file.close();
         }
 
+
+//         Experiment 2: build a B+ tree on the attribute "numVotes" by inserting the
+//          records sequentially and report the following statistics:
+//          - the parameter n of the B+ tree
+//          - the number of nodes of the B+ tree
+//          - the height of the B+ tree, i.e., the number of levels of the B+ tree
+//          - the content of the root node and its 1st child node
+        void experiment2(){
+            cout << "Parameter, n: " << btree.getN() << "\n";
+            cout << "Number Of Nodes in B+ Tree: " << btree.getNumberOfNodes() <<"\n";
+            cout << "Height of B+ tree: " << btree.getHeight() <<"\n";
+            cout << "Content of root node: ";
+            btree.getRoot()->printAllKeys();
+            cout << "\n";
+            cout << "Content of 1st child node: ";
+            Node * firstChild = (Node *)btree.getRoot()->children[0];
+            firstChild->printAllKeys();
+            cout << "\n";
+        }
+
         void printBlocks(){
             this->disk.printAllRecord();
         }

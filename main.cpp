@@ -3,12 +3,14 @@
 #include "Database.cpp"
  
 int main(){
-    // Database database("tsv_files/data.tsv", 3);
-    Database database("tsv_files/testing.tsv",7);
+    int n = 7;
+    // Database database("tsv_files/data.tsv", n);2
+    Database database("tsv_files/testing3.tsv",3);
 
     int choice;
     cout << "Which experiment result to view? (Type 1-7)\n";
     cout << "Experiment 1: Store data in disk \n";
+    cout << "Experiment 2: Build a B+ tree on the attribute 'numVotes'\n";
     cout << "Choice: ";
     cin >> choice;
 
@@ -21,13 +23,15 @@ int main(){
     }
     switch(choice){
         case 1:
-            cout << "Experiment 1: Store data in disk \t (1)\n";
+            cout << "Experiment 1: Store data in disk\n";
             database.addAllRecordsWithNoIndex();
             // database.printBlocks(); //for debugging
             break;
         case 2: 
+            cout << "Experiment 2: Build a B+ tree on the attribute 'numVotes'\n";
             database.addToDiskAndBplus();
-            database.printTree();
+            database.experiment2();
+            database.printTree(); //for debugging
             break;
         default:
             cout << "Not coded yet";
