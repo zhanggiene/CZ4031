@@ -14,7 +14,7 @@ using namespace std;
 class Disk
 {
     public: vector<Block> blocks;
-    list<pair<int,int> > directory;
+    list<pair<int,int>> directory;
 
     Disk (){
         blocks.push_back(Block());
@@ -41,7 +41,7 @@ class Disk
         return blocks.size();
     }
 
-    void insert(string s)
+    void * insert(string s)
     {
         // insert at the end 
         Record temp=Record(s);
@@ -54,8 +54,7 @@ class Disk
             recordId=blocks.back().add(temp);
         }
         directory.push_back(make_pair(blocks.size()-1,recordId));
-
-
+        return &directory.back();
     }
 
     void printAllRecord()

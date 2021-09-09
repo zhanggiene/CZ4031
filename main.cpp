@@ -3,7 +3,8 @@
 #include "Database.cpp"
  
 int main(){
-    Database database("tsv_files/data.tsv", 3);
+    // Database database("tsv_files/data.tsv", 3);
+    Database database("tsv_files/testing.tsv",7);
 
     int choice;
     cout << "Which experiment result to view? (Type 1-7)\n";
@@ -11,9 +12,9 @@ int main(){
     cout << "Choice: ";
     cin >> choice;
 
-    while (cin.fail() || choice < 1 || choice > 7 ) {
-        cout << "Please insert a valid integer from 1-7!\n";
-        cout << "Which experiment result to view? (Type 1-7)\n";
+    while (cin.fail() || choice < 1 || choice > 6 ) {
+        cout << "Please insert a valid integer from 1-6!\n";
+        cout << "Which experiment result to view? (Type 1-6)\n";
         cin.clear();
         cin.ignore(256,'\n');
         cin >> choice;
@@ -23,6 +24,10 @@ int main(){
             cout << "Experiment 1: Store data in disk \t (1)\n";
             database.addAllRecordsWithNoIndex();
             // database.printBlocks(); //for debugging
+            break;
+        case 2: 
+            database.addToDiskAndBplus();
+            database.printTree();
             break;
         default:
             cout << "Not coded yet";

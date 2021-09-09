@@ -8,6 +8,12 @@
         "type_traits": "cpp",
         "vector": "cpp",
         "xutility": "cpp",
-        "iostream": "cpp"
+        "iostream": "cpp",
+        "utility": "cpp",
+        "iterator": "cpp",
+        "memory": "cpp",
+        "xmemory": "cpp",
+        "ostream": "cpp",
+        "cmath": "cpp"
     }
 }

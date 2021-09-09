@@ -60,8 +60,30 @@ class Database {
             cout <<  "Size of database (in terms of MB): " << mb << "\n";
         }
 
+        void addToDiskAndBplus(){
+            //read file
+            ifstream file(this->filename);
+            //read each line from the tsv file
+            string line;
+            int i = 0;
+            while (getline (file, line)) {
+                if (i==0){ //ignore header
+                    i++;
+                    continue;
+                }
+                void * pointer = this->disk.insert(line);
+                int key = stoi(split(line)[2]);
+                this->btree.insertToBTree(key,&i);
+            }
+            file.close();
+        }
+
         void printBlocks(){
             this->disk.printAllRecord();
+        }
+
+        void printTree(){
+            this->btree.printNodeTree();
         }
     
 };
