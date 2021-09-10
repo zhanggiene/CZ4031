@@ -4,8 +4,8 @@
  
 int main(){
     int n = 7;
-    // Database database("tsv_files/data.tsv", n);2
-    Database database("tsv_files/testing3.tsv",3);
+    Database database("tsv_files/data.tsv", n);
+    // Database database("tsv_files/testing3.tsv",3);
 
     int choice;
     cout << "Which experiment result to view? (Type 1-7)\n";
@@ -31,7 +31,7 @@ int main(){
             cout << "Experiment 2: Build a B+ tree on the attribute 'numVotes'\n";
             database.addToDiskAndBplus();
             database.experiment2();
-            database.printTree(); //for debugging
+            // database.printTree(); //for debugging
             break;
         default:
             cout << "Not coded yet";

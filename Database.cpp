@@ -63,9 +63,9 @@ class Database {
         void addToDiskAndBplus(){
             //read file
             ifstream file(this->filename);
+            int i = 0;
             //read each line from the tsv file
             string line;
-            int i = 0;
             while (getline (file, line)) {
                 if (i==0){ //ignore header
                     i++;
@@ -73,7 +73,7 @@ class Database {
                 }
                 void * pointer = this->disk.insert(line);
                 int key = stoi(split(line)[2]);
-                this->btree.insertToBTree(key,&i);
+                this->btree.insertToBTree(key,pointer);
             }
             file.close();
         }

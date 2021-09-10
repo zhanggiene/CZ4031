@@ -47,13 +47,6 @@ struct Node
     }
 
     void addToValues(void * value, int index){
-        //if this is a leaf
-        if (leaf){
-            //store children of root as *List(pointers)
-            vector<void *> * valuelist = new vector<void *>();
-            valuelist->push_back(value);
-            value = valuelist;
-        }
         children.insert(children.begin() + index , value);
     }
 
@@ -75,27 +68,6 @@ struct Node
 
     void setLeafOrNot(bool leaf){
         this->leaf = leaf;
-    }
-
-    bool keyExists(int keyToInsert){
-        for (auto key : keys){
-            if (keyToInsert == key){
-                return true;
-            }
-        }
-        return false;
-    }
-
-    void insertDuplicate(void * value, int key){
-        for (int i=0;getNumKeys();i++){
-            if (keys[i]==key){
-                // cout << "key:"<<keys[i]<<"\n";
-                //list<void *> listOfValues({value});
-                vector<void *> * tempListPointer= (vector<void *> *)children[i];
-                tempListPointer->push_back(value);
-                return;
-            }
-        }
     }
 
     void printAllKeys(){
@@ -168,15 +140,6 @@ class bTree
             }
             //For all other cases, find the leaf node we are inserting into 
             Node * nodeToInsertInto = findLeafNodeToInsert(key);
-            //if the key allready exists, just group it together with the other duplicates
-            if (nodeToInsertInto->keyExists(key) && nodeToInsertInto->leaf){
-                // cout << key<<" duplicate\n";
-                nodeToInsertInto->insertDuplicate(value, key);
-                // cout << "All children in duplicate: ";
-                // nodeToInsertInto->printAllChildren();
-                // cout << "\n";
-                return;
-            }
             // cout << "nodeToInsertInto: " ;
             // nodeToInsertInto->printAllKeys();
             // cout << "\n";
