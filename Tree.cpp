@@ -78,20 +78,44 @@ struct Node
         cout << "\t";
     }
 
-    //only for dummy example in this file
+    //Meaning no more next leaf node (it's the last of all the leaf nodes)
+    bool isTerminalLeafNode(){
+        return (getNumKeys() == getNumValues());
+    }
+
+    //get next node
+    //Eg. [1,3] -> [4, 5] return Node with [4, 5]
+    Node * getNextNode(){
+        if (isTerminalLeafNode()){
+            return NULL;
+        }
+        else{
+            return (Node *) children[getNumValues()-1];
+        }
+    }
+
+    // To check that the leaf node pointers are right
+    // only for dummy example in this file
     // void printAllChildren(){
     //     cout << "|";
-    //     for (auto child : children){
-    //         vector<void *> * pointerToList = (vector<void *> *)child; // pointer to a list
-    //         vector<void *> vector = *pointerToList;
-    //         for (int i=0;i<vector.size();i++){
-    //             int * p1= (int *)vector[i];
-    //             cout << *p1<<" ";
-    //         }
+    //     for (int i=0;i<getNumKeys();i++){
+    //         int * pointerToRecord = (int *)children[i];
+    //         cout << *pointerToRecord;
     //         cout << "|";
     //     }
     //     cout << "\t";
     // }
+
+    //For actual data 
+    void printAllChildren(){
+        cout << "|";
+        for (int i=0;i<getNumKeys();i++){
+            pair<int,int> * pointerToRecord = (pair<int,int> *)children[i];
+            cout <<"<" <<pointerToRecord->first<<","<<pointerToRecord->second<<">";
+            cout << "|";
+        }
+        cout << "\t";
+    }
 
     ~Node(){
         for (auto child : children){
@@ -140,9 +164,7 @@ class bTree
             }
             //For all other cases, find the leaf node we are inserting into 
             Node * nodeToInsertInto = findLeafNodeToInsert(key);
-            // cout << "nodeToInsertInto: " ;
-            // nodeToInsertInto->printAllKeys();
-            // cout << "\n";
+
             //starting from this leaf node
             while (true){ 
                 //Case 2: Current node is not full
@@ -151,57 +173,19 @@ class bTree
                     nodeToInsertInto->addToKeys(key, keyIndexToInsertAt);
                     int valueIndexToInsertAt = findValueIndexToInsert(nodeToInsertInto, key);
                     nodeToInsertInto->addToValues(value, valueIndexToInsertAt);
-                    break;
+                    break; //stop adding once it has been added to an empty node
                 } else {
                     //Case 3: A leaf node is full;
                     if (nodeToInsertInto->leaf){
-                        //Create new leaf node 
-                        Node * newLeafNode = createNewLeafNode();
-                        //temporarily insert into the old node (this node will overflow)
-                        int keyIndexToInsertAt = findKeyIndexToInsert(nodeToInsertInto, key);
-                        nodeToInsertInto->addToKeys(key, keyIndexToInsertAt);
-                        int valueIndexToInsertAt = findValueIndexToInsert(nodeToInsertInto, key);
-                        nodeToInsertInto->addToValues(value, valueIndexToInsertAt);
-                        
-                        //get index to split (everything at & after the index will be shifted to new node)
-                        //eg. 1 2 [3 4] (degree=3) then return index=2
-                        //eg. 1 2 [3 4 5] (degree=4) then return index=2
-                        //eg. 1 2 3 [4 5 6] (degree=5) then return index=3
-                        int indexToSplit = floor((degree+1)/2);
-                        // cout << "indexToSplit: "<<indexToSplit<<"\n";
-
-                        //Populate the new leaf node with [3, 4] and remove [3, 4] from old leaf node
-                        newLeafNode->insertKeysFromOtherNode(nodeToInsertInto, 
-                                                            indexToSplit, 
-                                                            nodeToInsertInto->getNumKeys());
-                        nodeToInsertInto->eraseKeys(indexToSplit, nodeToInsertInto->getNumKeys()) ;
-                        newLeafNode->insertValuesFromOtherNode(nodeToInsertInto, 
-                                                                indexToSplit, 
-                                                                nodeToInsertInto->getNumValues());
-                        nodeToInsertInto->eraseValues(indexToSplit, nodeToInsertInto->getNumValues());
-                        
-                        // cout << "All children of nodeToInsertInto: ";
-                        // // nodeToInsertInto->printAllChildren();
-                        // cout << "\n";
-                        
-                        // cout << "All children of newLeafNode: ";
-                        // // newLeafNode->printAllChildren();
-                        // cout << "\n";
-                        
-
-                        // //add the new leaf node's pointer to the end of old leaf node
-                        // //[1 2] -> [3 4]
-                        nodeToInsertInto->children.push_back(newLeafNode);
-                        
+                        //Split node [1, 2, 3] + 4 -> [1,2] [3, 4]
+                        Node * newLeafNode = splitLeafNode(nodeToInsertInto, key, value);
                         key = newLeafNode->keys[0]; //this will be the smallest
-                        value = newLeafNode;
-                    
+                        value = newLeafNode; //Next node to insert
                         Node * parentNode = getParent(nodeToInsertInto); //get this leaf node's parent
-                        
-                        //this is already root node
+                        //if the parentNode is already a root node
                         if (parentNode == NULL) {
                             parentNode = createNewNonLeafNode(); //no longer leaf
-                            parentNode->children.push_back(nodeToInsertInto);
+                            parentNode->addToValues(nodeToInsertInto, 0);
                             nodeToInsertInto = parentNode;
                             _root = parentNode;
                         } else {
@@ -210,49 +194,86 @@ class bTree
                     } 
                     //Case 4: A non-leaf node is full;
                     else { 
-                        //Create new nonleaf node 
-                        Node * newNonLeafNode = createNewNonLeafNode();
-                        //temporarily insert into the old node (this node will overflow)
-                        int keyIndexToInsertAt = findKeyIndexToInsert(nodeToInsertInto, key);
-                        nodeToInsertInto->addToKeys(key, keyIndexToInsertAt);
-                        int valueIndexToInsertAt = findValueIndexToInsert(nodeToInsertInto, key);
-                        nodeToInsertInto->addToValues(value, valueIndexToInsertAt);
-                        //get index to split (everything at & after the index will be shifted to new node)
-                        //eg. 1 2 [3 4] (degree=3) then return index=2
-                        //eg. 1 2 [3 4 5] (degree=4) then return index=2
-                        //eg. 1 2 3 [4 5 6] (degree=5) then return index=3
-                        int indexToSplit = floor((degree+1)/2);
-
-                        //Populate the new leaf node with [3, 4] and remove [3, 4] from old leaf node
-                        newNonLeafNode->insertKeysFromOtherNode(nodeToInsertInto, 
-                                                            indexToSplit, 
-                                                            nodeToInsertInto->getNumKeys());
-                        nodeToInsertInto->eraseKeys(indexToSplit, nodeToInsertInto->getNumKeys()) ;
-                        newNonLeafNode->insertValuesFromOtherNode(nodeToInsertInto, 
-                                                                indexToSplit+1, 
-                                                                nodeToInsertInto->getNumValues());
-                        nodeToInsertInto->eraseValues(indexToSplit+1, nodeToInsertInto->getNumValues());
-    
-                        key = newNonLeafNode->keys[0]; //this will be the smallest (usedd for root)
-                        newNonLeafNode->keys.erase(newNonLeafNode->keys.begin(), newNonLeafNode->keys.begin()+1);
-                        value = newNonLeafNode;
+                        //Split node [1, 2, 3] + 4 -> [1,2] [3, 4]
+                        Node * newNonLeafNode = splitNonLeafNode(nodeToInsertInto, key, value);
+                        key = newNonLeafNode->keys[0]; //this will be the smallest (used for root)
+                        newNonLeafNode->eraseKeys(0, 1); //Node [1,2] [3, 4] -> Node [1,2] [4]
+                        value = newNonLeafNode; //next value to insert
                         Node * parentNode = getParent(nodeToInsertInto); //get this leaf node's parent
-                        //this is already root node
+                        //if the parentNode is already a root node
                         if (parentNode == NULL) {
                             parentNode = createNewNonLeafNode(); //no longer leaf
-                            parentNode->children.push_back(nodeToInsertInto);
+                            parentNode->addToValues(nodeToInsertInto, 0);
                             nodeToInsertInto = parentNode;
                             _root = parentNode;
-                            Node * temp =(Node *) value;
                         } else {
                             nodeToInsertInto = parentNode;
                         }
-
                     }
-
                 }
             }
        }
+
+        Node * splitLeafNode(Node * oldNode, int key, void * value){
+            //Create new leaf node 
+            Node * newLeafNode = createNewLeafNode();
+            //temporarily insert into the old node (this node will overflow)
+            int keyIndexToInsertAt = findKeyIndexToInsert(oldNode, key);
+            oldNode->addToKeys(key, keyIndexToInsertAt);
+            int valueIndexToInsertAt = findValueIndexToInsert(oldNode, key);
+            oldNode->addToValues(value, valueIndexToInsertAt);
+            
+            //get index to split (everything at & after the index will be shifted to new node)
+            //eg. 1 2 [3 4] (degree=3) then return index=2
+            //eg. 1 2 [3 4 5] (degree=4) then return index=2
+            //eg. 1 2 3 [4 5 6] (degree=5) then return index=3
+            int indexToSplit = floor((degree+1)/2);
+            // cout << "indexToSplit: "<<indexToSplit<<"\n";
+
+            //Populate the new leaf node with [3, 4] and remove [3, 4] from old leaf node
+            newLeafNode->insertKeysFromOtherNode(oldNode, 
+                                                indexToSplit, 
+                                                oldNode->getNumKeys());
+            oldNode->eraseKeys(indexToSplit, oldNode->getNumKeys()) ;
+            newLeafNode->insertValuesFromOtherNode(oldNode, 
+                                                    indexToSplit, 
+                                                    oldNode->getNumValues());
+            oldNode->eraseValues(indexToSplit, oldNode->getNumValues());          
+
+            // //add the new leaf node's pointer to the end of old leaf node
+            // //[1 2] -> [3 4]
+            oldNode->addToValues(newLeafNode, oldNode->getNumValues());
+
+            return newLeafNode;
+        }
+
+        //This function splits the values differently than splitLeafNode
+        Node * splitNonLeafNode(Node * oldNode, int key, void * value){
+            //Create new nonleaf node 
+            Node * newNonLeafNode = createNewNonLeafNode();
+            //temporarily insert into the old node (this node will overflow)
+            int keyIndexToInsertAt = findKeyIndexToInsert(oldNode, key);
+            oldNode->addToKeys(key, keyIndexToInsertAt);
+            int valueIndexToInsertAt = findValueIndexToInsert(oldNode, key);
+            oldNode->addToValues(value, valueIndexToInsertAt);
+            //get index to split (everything at & after the index will be shifted to new node)
+            //eg. 1 2 [3 4] (degree=3) then return index=2
+            //eg. 1 2 [3 4 5] (degree=4) then return index=2
+            //eg. 1 2 3 [4 5 6] (degree=5) then return index=3
+            int indexToSplit = floor((degree+1)/2);
+
+            //Populate the new leaf node with [3, 4] and remove [3, 4] from old leaf node
+            newNonLeafNode->insertKeysFromOtherNode(oldNode, 
+                                                indexToSplit, 
+                                                oldNode->getNumKeys());
+            oldNode->eraseKeys(indexToSplit, oldNode->getNumKeys()) ;
+            newNonLeafNode->insertValuesFromOtherNode(oldNode, 
+                                                    indexToSplit+1,  //difference is here
+                                                    oldNode->getNumValues());
+            oldNode->eraseValues(indexToSplit+1, //difference is here
+                            oldNode->getNumValues());
+            return newNonLeafNode;
+        }
 
         Node * getParent(Node * node){
             int smallestKey = node->keys[0];
@@ -270,7 +291,6 @@ class bTree
                         }
                     }
                     //if the current node does not contain this node as a child
-                    
                     int  valueIndex = findKeyIndexToInsert(current_node,smallestKey);
                     current_node = (Node *)current_node->children[valueIndex];
                 }
@@ -372,22 +392,29 @@ class bTree
 
         //To check
         void printLastRow(){
+            cout << "printLastRow:\n";
             Node * node = (Node *) findLeafNodeToInsert(-1);
-            while (node != NULL){
+            while (true){
                 node->printAllKeys();
-                node = (Node *) node->children[node->getNumValues()-1];
+                if (node->isTerminalLeafNode()){
+                    break;
+                }
+                node = node->getNextNode();
             }
         }
 
-        //only works for our number dummy in this file's main()
-        // void printLastRowPointers(){
-        //     cout << "printLastRowPointers:\n";
-        //     Node * node = (Node *) findLeafNodeToInsert(-1);
-        //     while (node != NULL){
-        //         // node->printAllChildren();
-        //         node = (Node *) node->children[node->getNumValues()-1];
-        //     }
-        // }
+        //To check that the leaf node pointers are right
+        void printLastRowPointers(){
+            cout << "printLastRowPointers:\n";
+            Node * node = (Node *) findLeafNodeToInsert(-1);
+            while (true){
+                node->printAllChildren();
+                if (node->isTerminalLeafNode()){
+                    break;
+                }
+                node = node->getNextNode();
+            }
+        }
 
         Node * createNewLeafNode(){
             numOfNodes++;
@@ -436,11 +463,6 @@ class bTree
 //     int d=4;
 //     bTree tree=bTree(3);
 
-//     cout << "a: "<<&a <<"\n";
-//     cout << "b: "<<&b <<"\n";
-//     cout << "c: "<<&c <<"\n";
-//     cout << "d: "<<&d <<"\n";
-
 //     tree.insertToBTree(1,&a);
 //     tree.printNodeTree();
 //     tree.insertToBTree(2,&a);
@@ -456,7 +478,7 @@ class bTree
 //     tree.printNodeTree();
 //     tree.insertToBTree(6,&c);
 //     tree.printNodeTree();
-//     tree.insertToBTree(6,&d);
+//     tree.insertToBTree(6,&c);
 //     tree.printNodeTree();
 //     tree.insertToBTree(7,&d);
 //     tree.printNodeTree();
@@ -465,7 +487,9 @@ class bTree
 //     // tree.insertToBTree(7,&d);
 //     // tree.printNodeTree();
 
-//     tree.printLastRowPointers();
+//     tree.printLastRow();
+
+//     // tree.printLastRowPointers();
 
 //     // tree.insertToBTree(8,&b);
 //     // tree.printNodeTree();

@@ -105,5 +105,9 @@ class Database {
         void printTree(){
             this->btree.printNodeTree();
         }
+
+        void printLastRowOfPointers(){
+            this->btree.printLastRowPointers();
+        }
     
 };
