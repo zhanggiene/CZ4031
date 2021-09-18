@@ -102,22 +102,20 @@ class Database {
 
         void experiment3()
         {
-
-
             vector<pair<int,int> > result=btree.search(500);
             cout<<endl;
             float SUM=0;
 
             vector<float> allRatings;
-            cout<<"size of result is"<<result.size();
+            cout<<"Size of result: "<<result.size()<<"\n";
             for(auto x: result)
             {
                 float temp=disk.getRecord(x.first,x.second).rating;
                 allRatings.push_back(temp);
             }
             for(auto x: allRatings) SUM+=x;
-            cout<<"number of records is"<<allRatings.size();
-            cout<<"the average of “averageRating’s” of the records: is "<<SUM/allRatings.size();
+            cout<<"Number of records: "<<allRatings.size()<<"\n";
+            cout<<"Average of \"averageRating\"s of the records: "<<SUM/allRatings.size()<<"\n";
         }
 
          void experiment4()

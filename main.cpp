@@ -25,15 +25,15 @@ int main(){
     int n = 7;
     // Database database("tsv_files/data.tsv", n);
     // 3 means the maximum number of keys allowed.
-    //Database database("tsv_files/testing3.tsv",3);
+    // Database database("tsv_files/testing3.tsv",3);
     Database database("tsv_files/data.tsv",7);
 
     int choice;
     cout << "Which experiment result to view? (Type 1-7)\n";
     cout << "Experiment 1: Store data in disk \n";
-    cout << "Experiment 2: Build a B+ tree on the attribute 'numVotes'\n";
-    cout << "Experiment 3: : retrieve those movies with the “numVotes” equal to 500'\n";
-    cout << "Experiment 4: retrieve those movies with the attribute “numVotes” from 30,000 to 40,000, both inclusively\n";
+    cout << "Experiment 2: Build a B+ tree on the attribute \"numVotes\"\n";
+    cout << "Experiment 3: Retrieve movies with attribute \"numVotes\" equal to 500\n";
+    cout << "Experiment 4: Retrieve movies with attribute \"numVotes\" from 30,000 to 40,000, both inclusively\n";
     cout << "Choice: ";
     cin >> choice;
 
@@ -51,19 +51,19 @@ int main(){
             // database.printBlocks(); //for debugging
             break;
         case 2: 
-            cout << "Experiment 2: Build a B+ tree on the attribute 'numVotes'\n";
+            cout << "Experiment 2: Build a B+ tree on the attribute \"numVotes\"\n";
             database.addToDiskAndBplus();
             database.experiment2();
             database.printTree(); //for debugging
             database.printLastRowOfPointers();
             break;
         case 3:
-            cout<<"Experiment 3: : retrieve those movies with the “numVotes” equal to 500'\n";
+            cout<<"Experiment 3: Retrieve movies with attribute \"numVotes\" equal to 500\n";
             database.addToDiskAndBplus();
             database.experiment3();
             break;
         case 4:
-            cout<<"Experiment 4: : retrieve those movies with the attribute “numVotes” from 30,000 to 40,000, both inclusively\n";
+            cout<<"Experiment 4: Retrieve movies with attribute \"numVotes\" from 30,000 to 40,000, both inclusively\n";
             database.addToDiskAndBplus();
             database.experiment4();
             break;

@@ -87,7 +87,7 @@ struct Node
 
     //Meaning no more next leaf node (it's the last of all the leaf nodes)
     bool isTerminalLeafNode(){
-        return (getNumKeys() == getNumValues());
+        return (nextLeaf==NULL);
     }
 
     //get next node
@@ -97,7 +97,7 @@ struct Node
             return NULL;
         }
         else{
-            return (Node *) children[getNumValues()-1];
+            return (Node *) nextLeaf;
         }
     }
 
@@ -473,20 +473,20 @@ class bTree
             int counterData=5;
             int indexNodeNumber=0;
             int dataNodeNumber=0;
-            cout<<"top 5 content of the index Node is"<<endl;
+            cout<<"Top 5 content of the index node: "<<endl;
 
             while(!current_node->leaf)
             {
-                //current_node->printAllKeys();
                 indexNodeNumber+=1;
+                if (indexNodeNumber<6){ //first 5
+                    current_node->printAllKeys();
+                }
                 if (counterIndex>0) {counterIndex-=1;}
                 int childrenIndex=upper_bound(current_node->keys.begin(),current_node->keys.end(),numVotes)-current_node->keys.begin();
                 current_node=(Node* )current_node->children[childrenIndex];
             }
-            cout<<" total number of index nodes is"<<indexNodeNumber<<endl;
+            cout<<"\nTotal number of index nodes: "<<indexNodeNumber<<endl;
 
-            cout<<endl;
-            cout<<"top 5 content of the dataNode is"<<endl;
             // now reach leaf node
             // keep traversing to the left 23 33 33 33
             //current_node->printAllKeys();
@@ -497,13 +497,13 @@ class bTree
                 current_node=current_node->previousLeaf;
 
             } 
-            cout<<"_________________________________________";
+            cout<<"_________________________________________\n";
+            cout<<"Top 5 content of the data nodes: "<<endl;
              //current_node->printAllKeys();
             while(current_node!=NULL && current_node->keys[0]<=numVotes)
             {
                 dataNodeNumber+=1;
                 if (counterData>0){
-                    current_node->printAllKeys();
                     current_node->printAllChildren();
                     counterData-=1;
                 }
@@ -518,7 +518,7 @@ class bTree
             current_node=current_node->nextLeaf;
             }
 
-            cout<<" total number of data nodes is "<<dataNodeNumber<<endl;
+            cout<<"\nTotal number of data nodes: "<<dataNodeNumber<<endl;
             return result;
 
 
@@ -536,7 +536,7 @@ class bTree
             int counterData=5;
             int indexNodeNumber=0;
             int dataNodeNumber=0;
-            cout<<"top 5 content of the index Node is"<<endl;
+            cout<<"Top 5 content of the index Node: "<<endl;
 
             while(!current_node->leaf)
             {
@@ -546,10 +546,10 @@ class bTree
                 int childrenIndex=upper_bound(current_node->keys.begin(),current_node->keys.end(),lower)-current_node->keys.begin();
                 current_node=(Node* )current_node->children[childrenIndex];
             }
-            cout<<" total number of index nodes is"<<indexNodeNumber<<endl;
+            cout<<"Total number of index nodes: "<<indexNodeNumber<<endl;
 
             cout<<endl;
-            cout<<"top 5 content of the dataNode is"<<endl;
+            cout<<"Top 5 content of the dataNode: "<<endl;
             // now reach leaf node
             // keep traversing to the left 23 33 33 33
             //current_node->printAllKeys();
@@ -580,7 +580,7 @@ class bTree
             current_node=current_node->nextLeaf;
             }
 
-            cout<<" total number of data nodes is "<<dataNodeNumber<<endl;
+            cout<<"Total number of data nodes: "<<dataNodeNumber<<endl;
             return result;
 
 
