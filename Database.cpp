@@ -55,8 +55,8 @@ class Database {
             int numBlocks = disk.getTotalBlocks();
             cout << "Total Number of Blocks: " << numBlocks <<"\n";
             //the size of database (in terms of MB)
-            int blocksize = 100;
-            float mb = (float(numBlocks * blocksize) / float(1000000));
+            int blocksize = disk.getBlockSizeinByte();
+            float mb = (float(numBlocks * blocksize) / float(1024*1024));
             cout <<  "Size of database (in terms of MB): " << mb << "\n";
         }
 

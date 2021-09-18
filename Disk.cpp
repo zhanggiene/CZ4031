@@ -9,12 +9,14 @@
 #include "Block.cpp"
 #include <list>
 #include <iterator>
+# include <unordered_set>
 // 
 using namespace std;
 class Disk
 {
     public: vector<Block> blocks;
-    list<pair<int,int>> directory;
+    list<pair<int,int> > directory;
+    unordered_set<int> unoccupiedblocks;
 
     Disk (){
         blocks.push_back(Block());
@@ -32,8 +34,23 @@ class Disk
 
     void deleteRecord(int blockid, int recordid)
     {
+        // deletion is inefficient.
         // assume the blockid and recordid are correct
+        blocks[blockid].deleteSlot(recordid);
+        unoccupiedblocks.insert(blockid);
+        directory.remove(make_pair(blockid,recordid));
 
+    }
+
+    void deleteBypointer(void* p)
+    {
+        auto temp=(pair<int,int> *) p;
+        deleteRecord((*temp).first,(*temp).second);
+        // blocks[(*temp).first].deleteSlot((*temp).second);
+        // unoccupiedblocks.insert((*temp).first);
+
+        // list<pair<int,int> >::iterator it( p );
+        // directory.erase(it);
     }
 
     int getTotalBlocks()
@@ -41,10 +58,31 @@ class Disk
         return blocks.size();
     }
 
+    int getBlockSizeinByte()
+    {
+        if (blocks.size()>0) return sizeof(blocks[0]);
+        else return 0;
+    }
+
     void * insert(string s)
     {
         // insert at the end 
         Record temp=Record(s);
+        while (unoccupiedblocks.size()>0)
+        {
+            int i=*unoccupiedblocks.begin();
+            int recordIdTemp=blocks[i].add(temp);
+            if (recordIdTemp==-1)
+            {
+             unoccupiedblocks.erase(i);
+            }
+            else{
+                directory.push_back(make_pair(i,recordIdTemp));
+                // cout<<"inserting into "<<i<<recordIdTemp;
+                return &directory.back();
+            }
+
+        }
         int recordId=blocks.back().add(temp);
          //cout<<"the record Id is "<<recordId<<"-------";
         if (recordId==-1)
@@ -53,13 +91,18 @@ class Disk
             blocks.push_back(Block());
             recordId=blocks.back().add(temp);
         }
+        cout<<"inserting into "<<blocks.size()-1<<recordId;
         directory.push_back(make_pair(blocks.size()-1,recordId));
         return &directory.back();
     }
 
     void printAllRecord()
     {
-        for(auto x: blocks) x.print();
+        cout<<"size of blocks is "<<blocks.size()<<endl;
+        for(int i=0;i<blocks.size();i++)
+        {
+            blocks[i].print();
+        }
     }
 
 };

@@ -5,6 +5,7 @@
 #include <string>
 #include <sstream>
 #include <algorithm>
+#include <math.h>
 
 using namespace std;
 
@@ -382,7 +383,7 @@ class bTree
                 }
                 if (parent_queue.size()==0){
                     parent_queue = child_queue;
-                    child_queue = {};
+                    child_queue.clear();
                     cout << "\n";
                 }
                 

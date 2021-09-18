@@ -6,7 +6,7 @@
 #include <iterator>
 #include <vector>
 #include <utility>
-#include "record.cpp"
+#include "Record.cpp"
 
 using namespace std;
 
@@ -55,18 +55,19 @@ class Block {
    Record getRecord(int slotId)
    {
        int lastPosition=*((int *)(m+4*slotId));
-       return  *(Record *)(m+lastPosition-sizeof(Record));
+       return  *(Record *)(m+lastPosition);
    }
 
    void deleteSlot(int slotId)
    {    int oldLastposition=*((int *)(m+4*slotId));
-   memmove( m+lastPosition, m+ oldLastposition, sizeof(Record) );
+
+   memmove( m+lastPosition+sizeof(Record), m+lastPosition, oldLastposition-lastPosition);
    lastPosition+=sizeof(Record);
         for(int i=slotId+1;i<numberSlot;i++)
         {
             int tempPosition=*((int *)(m+4*i));
             //cout<<"old"<<tempPosition;
-            *((int *)(m+4*i))=tempPosition+sizeof(Record); // shift the slot reference by Record id.
+            if (tempPosition!=0) *((int *)(m+4*i))=tempPosition+sizeof(Record); // shift the slot reference by Record id.
             // new 
         }
        *((int *)(m+4*slotId))=0;

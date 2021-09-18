@@ -1,11 +1,13 @@
 #include <iostream> 
 #include <string> 
 #include "Database.cpp"
- 
+
+/*
 int main(){
     int n = 7;
     // Database database("tsv_files/data.tsv", n);
-    Database database("tsv_files/testing3.tsv",3);
+    // 3 means the maximum number of keys allowed.
+    Database database("tsv_files/data.tsv",7);
 
     int choice;
     cout << "Which experiment result to view? (Type 1-7)\n";
@@ -41,77 +43,154 @@ int main(){
     
     return 0;
 }
+*/
 
-// int main() 
-// { 
-//     /*  testing for record 
-//     Record a=Record("tt00000a	5.3   	1807");
-//     Record b=Record("tt00000b	5.3   	1807");
-//     Record c=Record("tt00000c	5.3   	1807");
-//     Record d=Record("tt00000d	5.3   	1807");
-//     Block block=Block();
-//     //cout<<a.toString();
-//     block.add(a);
-//     //block.add(b);
-//     //block.add(c);
-//     //block.add(d);
-//     //block.deleteSlot(3);
-//     //block.deleteSlot(0);
-//     //cout<<block.numberSlot;
-//     block.add(b);
-//     //block.add(c);
-//     //block.deleteSlot(0);
-//      //block.deleteSlot(1);
-//     //block.add(b);
-//     //cout<<block.add(b);
+int main() 
+{ 
+//testing for record 
+    Record c=Record("tt00000c	5.3   	1807");
+    Record a=Record("tt00000a	5.3   	1807");
+    Record b=Record("tt00000b	5.3   	1807");
     
-//     cout<<block.add(c);
-//     cout<<block.add(b);
-//     cout<<block.add(b);
-//     //cout<<block.add(b);
-//     //block.deleteSlot(1);
-//     block.print();
-//     //cout<<block.add(c)<<"_______";
-//     //cout<<block.get(2).toString();
-//     */
+
+    Block block=Block();
+    //cout<<c.toString();
+    // block.add(a);
+    // block.add(a);
+    // block.add(c);
+    //block.add(b);
+    // block.add(c);
+    //block.deleteSlot(3);
+    // block.deleteSlot(0);
+    // block.deleteSlot(1);
+    // block.deleteSlot(2);
+    // cout<<block.numberSlot;
+    // block.add(a);
+    
+    //block.deleteSlot(0);
+    // block.add(c);
+    //block.deleteSlot(1);
+    // block.deleteSlot(0);
+    // //block.deleteSlot(1);
+    // //block.add(c);
+    // //block.add(b);
+    // block.add(a);
+    // block.add(c);
+    //  block.deleteSlot(0);
+    //   block.deleteSlot(1);
+    //    block.deleteSlot(2);
+    
+    //  Record d=Record("tt00000d	5.3   	1807");
+    //   block.add(a);
+    //   Record e=Record("tt00000e	5.3   	1807");
+    //   block.add(b);
+    //   block.add(c);
+    //   block.add(d);
+    // block.deleteSlot(0);
+    // block.deleteSlot(1);
+    // block.deleteSlot(2);
+    // block.deleteSlot(3);
+    // block.add(d);
+    // block.add(a);
+    // //cout<<block.numberSlot;
+    // block.deleteSlot(0);
+    // block.deleteSlot(1);
+    // block.add(a);
+    // block.add(d);
+    // block.deleteSlot(0);
+    // block.deleteSlot(1);
+    //  block.add(a);
+    // block.add(d);
+    // block.deleteSlot(0);
+    // block.deleteSlot(1);
+
+
+
+    //block.deleteSlot(0);
+    //block.add(c);
+    // block.deleteSlot(1);
+    // block.deleteSlot(0);
+    // block.add(a);
+    // block.add(c);
+    // block.deleteSlot(1);
+    // block.deleteSlot(0);
+    //block.add(c);
+    //block.add(c);
+    // block.add(c);
+    // block.deleteSlot(0);
+    //  block.deleteSlot(1);
+    // block.add(b);
+    // cout<<block.add(b);
+    
+    // cout<<block.add(c);
+    // cout<<block.add(b);
+    // cout<<block.add(b);
+    // cout<<block.add(b);
+    // block.deleteSlot(1);
+    //block.deleteSlot(1);
+     //block.deleteSlot(2);
+     //block.deleteSlot(0);
+    //block.print();
+    //cout<<block.add(c)<<"_______";
+    //cout<<block.getRecord(0).toString();
 
 
    
-//     //testing for disk
-//     /*
-//     Disk d=Disk();
-//     d.insert("tt00000a	5.3   	1807");
-//     d.insert("tt00000a	5.3   	1807");
-//     d.insert("tt00000a	5.3   	1807");
-//     d.insert("tt00000a	5.3   	1807");
-//     d.insert("tt00000a	5.3   	1807");
-//     d.insert("tt00000a	5.3   	1807");
-//     d.insert("tt00000a	5.3   	1807");
-//     d.insert("tt00000a	5.3   	1807");
-//     d.insert("tt00000a	5.3   	1807");
-//     d.insert("tt00000a	5.3   	1807");
-//     d.insert("tt00000a	5.3   	1807");
-//     d.insert("tt00000a	5.3   	1807");
-//     d.insert("tt00000a	5.3   	1807");
-//     d.insert("tt00000a	5.3   	1807");
-//     d.insert("tt00000a	5.3   	1807");
-//     d.insert("tt00000a	5.3   	1807");
-//     d.insert("tt00000a	5.3   	1807");
-//     d.insert("tt00000a	5.3   	1807");
-//     d.insert("tt00000a	5.3   	1807");
-//     d.insert("tt00000a	5.3   	1807");
-//     d.insert("tt00000a	5.3   	1807");
-//     d.insert("tt00000a	5.3   	1807");
-//     d.insert("tt00000a	5.3   	1807");
-//     d.insert("tt00000a	5.3   	1807");
-//     d.insert("tt00000a	5.3   	1807");
-//     d.insert("tt00000a	5.3   	1807");
-//     d.insert("tt00000a	5.3   	1807");
-//     d.insert("tt00000a	5.3   	1807");
-//     d.printAllRecord();
-//     cout<<"size is "<<sizeof(d.blocks[0])*d.getTotalBlocks();
-//     */
+    //testing for disk
+    Disk d=Disk();
+    d.insert("tt00000a	5.3   	1807");
+    d.insert("tt00001a	5.3   	1807");
+    d.insert("tt00002a	5.3   	1807");
+    d.insert("tt00003a	5.3   	1807");
+    d.insert("tt00004a	5.3   	1807");
+    d.insert("tt00005a	5.3   	1807");
+    d.deleteRecord(0,0);
+    d.deleteRecord(1,1);
+    d.insert("tt00008a	5.3   	1807");
+    d.insert("tt00009a	5.3   	1807");
+    d.insert("tt000010a	5.3   	1807");
+    d.insert("tt000011a	5.3   	1807");
+    d.insert("tt00000a	5.3   	1807");
+    d.deleteRecord(0,0);
+    d.deleteRecord(1,1);
+     d.insert("tt00008a	5.3   	1807");
+    d.insert("tt00009a	5.3   	1807");
+    d.insert("tt000010a	5.3   	1807");
+    d.insert("tt000011a	5.3   	1807");
+    d.insert("tt00000a	5.3   	1807");
+    // d.insert("tt00000a	5.3   	1807");
+    // d.insert("tt00000a	5.3   	1807");
+    // d.insert("tt00000a	5.3   	1807");
+    // d.insert("tt00000a	5.3   	1807");
+    // d.insert("tt00000a	5.3   	1807");
+    // d.insert("tt00000a	5.3   	1807");
+    // d.insert("tt00000a	5.3   	1807");
+    // d.insert("tt00000a	5.3   	1807");
+    // d.insert("tt00000a	5.3   	1807");
+    // d.insert("tt00000a	5.3   	1807");
+    // d.insert("tt00000a	5.3   	1807");
+    // d.insert("tt00000a	5.3   	1807");
+    // d.insert("tt00000a	5.3   	1807");
+    // d.insert("tt00000a	5.3   	1807");
+    // d.insert("tt00000a	5.3   	1807");
+    // d.insert("tt00000a	5.3   	1807");
+    // d.insert("tt00000a	5.3   	1807");
+    // d.insert("tt00000a	5.3   	1807");
+    // d.insert("tt00000a	5.3   	1807");
+    // d.insert("tt00000a	5.3   	1807");
+    // d.insert("tt00000a	5.3   	1807");
+    // d.insert("tt00000a	5.3   	1807");
+    // d.insert("tt00000a	5.3   	1807");
+    //d.blocks[0].deleteSlot(0);
+    //cout<<"__"<<d.getTotalBlocks();
+    //d.printAllRecord();
+    //d.blocks[1].print();
+    //d.blocks[0].deleteSlot(0);
+    //d.blocks[0].print();
+    //cout<<"::::"<<d.blocks[1].numberSlot;
+    d.printAllRecord();
+    // cout<<"size is "<<sizeof(d.blocks[0])*d.getTotalBlocks();
 
     
-//     return 0; 
-// }
+    return 0; 
+}
