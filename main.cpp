@@ -3,16 +3,37 @@
 #include "Database.cpp"
 
 /*
+result from python script
+experiment 3:
+110
+6.731818181818184
+
+b+tree result:
+ize of result is110number of records is110the average of “averageRating’s” of the records: is 6.76273 
+
+
+experiement 4:
+953
+6.727911857292764
+
+b+ tree: 953number of records is953the average of “averageRating’s” of the records: is 6.72844
+
+
+*/
+
 int main(){
     int n = 7;
     // Database database("tsv_files/data.tsv", n);
     // 3 means the maximum number of keys allowed.
+    //Database database("tsv_files/testing3.tsv",3);
     Database database("tsv_files/data.tsv",7);
 
     int choice;
     cout << "Which experiment result to view? (Type 1-7)\n";
     cout << "Experiment 1: Store data in disk \n";
     cout << "Experiment 2: Build a B+ tree on the attribute 'numVotes'\n";
+    cout << "Experiment 3: : retrieve those movies with the “numVotes” equal to 500'\n";
+    cout << "Experiment 4: retrieve those movies with the attribute “numVotes” from 30,000 to 40,000, both inclusively\n";
     cout << "Choice: ";
     cin >> choice;
 
@@ -36,6 +57,16 @@ int main(){
             database.printTree(); //for debugging
             database.printLastRowOfPointers();
             break;
+        case 3:
+            cout<<"Experiment 3: : retrieve those movies with the “numVotes” equal to 500'\n";
+            database.addToDiskAndBplus();
+            database.experiment3();
+            break;
+        case 4:
+            cout<<"Experiment 4: : retrieve those movies with the attribute “numVotes” from 30,000 to 40,000, both inclusively\n";
+            database.addToDiskAndBplus();
+            database.experiment4();
+            break;
         default:
             cout << "Not coded yet";
             break;
@@ -43,8 +74,7 @@ int main(){
     
     return 0;
 }
-*/
-
+/*
 int main() 
 { 
 //testing for record 
@@ -193,4 +223,6 @@ int main()
 
     
     return 0; 
+    
 }
+*/

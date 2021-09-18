@@ -4,6 +4,8 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <functional>
+#include <algorithm>
 #include "Tree.cpp"
 #include "Disk.cpp"
 
@@ -97,6 +99,47 @@ class Database {
             firstChild->printAllKeys();
             cout << "\n";
         }
+
+        void experiment3()
+        {
+
+
+            vector<pair<int,int> > result=btree.search(500);
+            cout<<endl;
+            float SUM=0;
+
+            vector<float> allRatings;
+            cout<<"size of result is"<<result.size();
+            for(auto x: result)
+            {
+                float temp=disk.getRecord(x.first,x.second).rating;
+                allRatings.push_back(temp);
+            }
+            for(auto x: allRatings) SUM+=x;
+            cout<<"number of records is"<<allRatings.size();
+            cout<<"the average of “averageRating’s” of the records: is "<<SUM/allRatings.size();
+        }
+
+         void experiment4()
+        {
+
+
+            vector<pair<int,int> > result=btree.searchRange(30000,40000);
+            cout<<endl;
+            float SUM=0;
+
+            vector<float> allRatings;
+            cout<<"size of result is"<<result.size();
+            for(auto x: result)
+            {
+                float temp=disk.getRecord(x.first,x.second).rating;
+                allRatings.push_back(temp);
+            }
+            for(auto x: allRatings) SUM+=x;
+            cout<<"number of records is"<<allRatings.size();
+            cout<<"the average of “averageRating’s” of the records: is "<<SUM/allRatings.size();
+        }
+
 
         void printBlocks(){
             this->disk.printAllRecord();

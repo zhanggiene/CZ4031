@@ -19,6 +19,10 @@ struct Node
     vector< void*> children;
     bool leaf;
     int fullSize;
+    Node* previousLeaf;
+    Node* nextLeaf;  
+    // it is must to store NULL when it is the end 
+
     // if it is leave, point to iterator in double linkedlist 
     // if it is inner node, point  to the next node. 
     /*
@@ -30,6 +34,8 @@ struct Node
     {
         fullSize=n;
         leaf=true;    // when it is created it is true;
+        previousLeaf=NULL;
+        nextLeaf=NULL;
     }
 
     bool isFull(){
@@ -242,8 +248,13 @@ class bTree
             oldNode->eraseValues(indexToSplit, oldNode->getNumValues());          
 
             // //add the new leaf node's pointer to the end of old leaf node
-            // //[1 2] -> [3 4]
-            oldNode->addToValues(newLeafNode, oldNode->getNumValues());
+            // //[1 2] -> [3 4]  old<->new
+            // oldNode->addToValues(newLeafNode, oldNode->getNumValues());
+            newLeafNode->previousLeaf=oldNode;
+            newLeafNode->nextLeaf=oldNode->nextLeaf;
+            if (oldNode->nextLeaf!=NULL) oldNode->nextLeaf->previousLeaf=newLeafNode;
+            oldNode->nextLeaf=newLeafNode;
+
 
             return newLeafNode;
         }
@@ -449,6 +460,130 @@ class bTree
 
         ~bTree(){
             delete _root;
+        }
+
+         vector<pair<int,int> > search(int numVotes)
+        {
+            // use of binary search
+            // print all the content inside the data blocks, even if the numBVotes is not equal
+            // return vector of directory pointer.
+            Node * current_node = _root;
+            vector<pair<int,int> > result;
+            int counterIndex=5;
+            int counterData=5;
+            int indexNodeNumber=0;
+            int dataNodeNumber=0;
+            cout<<"top 5 content of the index Node is"<<endl;
+
+            while(!current_node->leaf)
+            {
+                //current_node->printAllKeys();
+                indexNodeNumber+=1;
+                if (counterIndex>0) {counterIndex-=1;}
+                int childrenIndex=upper_bound(current_node->keys.begin(),current_node->keys.end(),numVotes)-current_node->keys.begin();
+                current_node=(Node* )current_node->children[childrenIndex];
+            }
+            cout<<" total number of index nodes is"<<indexNodeNumber<<endl;
+
+            cout<<endl;
+            cout<<"top 5 content of the dataNode is"<<endl;
+            // now reach leaf node
+            // keep traversing to the left 23 33 33 33
+            //current_node->printAllKeys();
+            
+            while(current_node!=NULL && current_node->keys[0]==numVotes)
+            {
+                //current_node->printAllKeys();
+                current_node=current_node->previousLeaf;
+
+            } 
+            cout<<"_________________________________________";
+             //current_node->printAllKeys();
+            while(current_node!=NULL && current_node->keys[0]<=numVotes)
+            {
+                dataNodeNumber+=1;
+                if (counterData>0){
+                    current_node->printAllKeys();
+                    current_node->printAllChildren();
+                    counterData-=1;
+                }
+
+                for (int i=0;i<current_node->getNumKeys();i++){
+                if (current_node->keys[i]==numVotes)
+                
+                {  
+                pair<int,int> pointerToRecord = *(pair<int,int> *)current_node->children[i];
+                result.push_back(pointerToRecord);}
+        }
+            current_node=current_node->nextLeaf;
+            }
+
+            cout<<" total number of data nodes is "<<dataNodeNumber<<endl;
+            return result;
+
+
+        }
+
+
+        vector<pair<int,int> > searchRange(int lower,int higher)
+        {
+            // use of binary search
+            // print all the content inside the data blocks, even if the numBVotes is not equal
+            // return vector of directory pointer.
+            Node * current_node = _root;
+            vector<pair<int,int> > result;
+            int counterIndex=5;
+            int counterData=5;
+            int indexNodeNumber=0;
+            int dataNodeNumber=0;
+            cout<<"top 5 content of the index Node is"<<endl;
+
+            while(!current_node->leaf)
+            {
+                //current_node->printAllKeys();
+                indexNodeNumber+=1;
+                if (counterIndex>0) {current_node->printAllKeys();counterIndex-=1;}
+                int childrenIndex=upper_bound(current_node->keys.begin(),current_node->keys.end(),lower)-current_node->keys.begin();
+                current_node=(Node* )current_node->children[childrenIndex];
+            }
+            cout<<" total number of index nodes is"<<indexNodeNumber<<endl;
+
+            cout<<endl;
+            cout<<"top 5 content of the dataNode is"<<endl;
+            // now reach leaf node
+            // keep traversing to the left 23 33 33 33
+            //current_node->printAllKeys();
+            
+            while(current_node!=NULL && current_node->keys[0]==lower)
+            {
+                //current_node->printAllKeys();
+                current_node=current_node->previousLeaf;
+
+            } 
+             //current_node->printAllKeys();
+            while(current_node!=NULL && current_node->keys[0]<=higher)
+            {
+                dataNodeNumber+=1;
+                if (counterData>0){
+                    current_node->printAllKeys();
+                    current_node->printAllChildren();
+                    counterData-=1;
+                }
+
+                for (int i=0;i<current_node->getNumKeys();i++){
+                if (current_node->keys[i]<=higher && current_node->keys[i]>=lower)
+                
+                {  
+                pair<int,int> pointerToRecord = *(pair<int,int> *)current_node->children[i];
+                result.push_back(pointerToRecord);}
+        }
+            current_node=current_node->nextLeaf;
+            }
+
+            cout<<" total number of data nodes is "<<dataNodeNumber<<endl;
+            return result;
+
+
         }
 
 };

@@ -31,6 +31,10 @@ class Disk
     {
         blocks[blockid].getRecord(recordid).toString();
     }
+    Record getRecord(int blockid,int recordid)
+    {
+        return blocks[blockid].getRecord(recordid);
+    }
 
     void deleteRecord(int blockid, int recordid)
     {
@@ -91,7 +95,7 @@ class Disk
             blocks.push_back(Block());
             recordId=blocks.back().add(temp);
         }
-        cout<<"inserting into "<<blocks.size()-1<<recordId;
+        //cout<<"inserting into "<<blocks.size()-1<<recordId;
         directory.push_back(make_pair(blocks.size()-1,recordId));
         return &directory.back();
     }
