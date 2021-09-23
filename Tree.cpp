@@ -594,14 +594,7 @@ class bTree
 
         }
 
-        int findKeyIdx(Node* nodeToDeleteFrom, int val){
-            int idx = 0;
-            while (idx < nodeToDeleteFrom->getNumKeys() && val > keys[idx]) {
-                idx++;
-            }
-            return idx;
-        }
-
+        //deletion part starts here
         void deleteFromTree(int val){
              
             doDelete(int val, getRoot());
