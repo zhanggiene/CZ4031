@@ -597,9 +597,9 @@ class bTree
         //deletion part starts here
         void deleteFromTree(int val){
              
-            doDelete(int val, getRoot());
+            doDelete(val, getRoot());
             
-            treeRoot = getRoot();
+            Node* treeRoot = getRoot();
             if (treeRoot->keys.size() == 0){
                 //tree is empty
             }
@@ -609,23 +609,24 @@ class bTree
         void doDelete(int val, Node* tree) {
             int numOfKeys = tree->getNumKeys();
             if (tree != NULL) {
-                for (int i = 0; i < numOfKeys && tree->keys[i] < val; i++);
+                int i = 0;
+                for (i; i < numOfKeys && tree->keys[i] < val; i++);
                 if (i == numOfKeys) {
                     if (!tree->leaf) {
-                        doDelete(val, tree->children[numOfKeys]);
+                        doDelete(val, (Node *)tree->children[numOfKeys]);
                     } else {
                         //delete the last key
 
                     }
                 }
-                else if (!tree.leaf && tree->keys[i] == val){
-                    doDelete(val, tree->children[i+1]);
+                else if (!tree->leaf && tree->keys[i] == val){
+                    doDelete(val, (Node *)tree->children[i+1]);
                 }
                 else if (!tree->leaf) {
-                    doDelete(val, tree->children[i]);
+                    doDelete(val, (Node *)tree->children[i]);
                 }
                 else if (tree->leaf && tree->keys[i] == val){
-                    eraseKey(i);
+                    int eraseKey(i);
                     numOfKeys--;
                     if (tree->nextLeaf != NULL) {
                         //
@@ -643,7 +644,7 @@ class bTree
                                 //is this case possible?
                             }
                             else {
-                                nextSmallest = parentNode->children[parentIdx+1];
+                                nextSmallest = (int) parentNode->children[parentIdx+1];
                             }
                         }
                         else {
@@ -668,7 +669,7 @@ class bTree
             Node * parentNode = getParent(tree);
             int parentIdx = 0;
             for (parentIdx = 0; parentNode->children[parentIdx] != tree; parentIdx++);
-            Node * rightSib = parentNode->children[parentIdx+1];
+            Node * rightSib = (Node *)parentNode->children[parentIdx+1];
 
             if (!tree->leaf) {
                 tree->keys[tree->getNumKeys()] = parentNode->keys[parentIdx];
@@ -701,7 +702,7 @@ class bTree
 
         void borrowFromRight(Node * tree, int parentIdx) {
             Node * parentNode = getParent(tree);
-            Node * rightSib = parentNode->children[parentIdx + 1];
+            Node * rightSib = (Node *)parentNode->children[parentIdx + 1];
 
             if (tree->leaf){
                 tree->keys[tree->getNumKeys()-1] = rightSib->keys[0];
@@ -726,10 +727,10 @@ class bTree
             Node * parentNode = getParent(tree);
 
             for (int i = tree->getNumKeys() - 1; i > 0; i--){
-                tree->keys[i] = tree.keys[i-1];
+                tree->keys[i] = tree->keys[i-1];
             }
 
-            Node * leftSib = parentNode->children[parentIdx - 1];
+            Node * leftSib = (Node *)parentNode->children[parentIdx - 1];
 
             if (tree->leaf){
                 tree->keys[0] = leftSib->keys[leftSib->getNumKeys() - 1];
@@ -738,7 +739,7 @@ class bTree
             else {
                 tree->keys[0] = parentNode->keys[parentIdx - 1];
                 parentNode->keys[parentIdx - 1] = leftSib->keys[leftSib->getNumKeys() - 1];
-                tree->children[parentIdx - 1] = leftSib->keys[leftSib->getNumKeys() - 1];
+                tree->children[parentIdx - 1] = (Node *)leftSib->keys[leftSib->getNumKeys() - 1];
 
                 for (int i = 1; i < tree->getNumKeys(); i--){
                     tree->children[i] = tree->children[i-1];
@@ -774,6 +775,16 @@ class bTree
                     }
                     else {
                         Node * nextNode = mergeRight(parentNode->children[parentIdx - 1]);
+                        // to Annan: 
+                        //
+                        // (1) parentNode error
+                        //     In line 766, 769, 777
+                        //
+                        // (2) mergeRight error
+                        //     In line 773, 777
+                        //     Zhuyan taught me that it is because of the mergeRight does not return anything. 
+                        //
+                        // Sorry I am unable to fix these 5 bugs. Please help :D Thank you!
                         repairAfterDeletion(getParent(nextNode));
                     }
                 }
