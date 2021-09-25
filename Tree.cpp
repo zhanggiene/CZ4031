@@ -66,7 +66,7 @@ struct Node
     }
 
     void eraseKey(int idx) {
-        keys.erase(idx)
+        keys.erase(keys.begin()+idx);
     }
 
     void eraseKeys(int startIndex, int endIndex){
@@ -606,7 +606,7 @@ class bTree
 
         }
 
-        void doDelete(int val，Node* tree) {
+        void doDelete(int val, Node* tree) {
             int numOfKeys = tree->getNumKeys();
             if (tree != NULL) {
                 for (int i = 0; i < numOfKeys && tree->keys[i] < val; i++);
@@ -615,6 +615,7 @@ class bTree
                         doDelete(val, tree->children[numOfKeys]);
                     } else {
                         //delete the last key
+
                     }
                 }
                 else if (!tree.leaf && tree->keys[i] == val){
@@ -626,7 +627,7 @@ class bTree
                 else if (tree->leaf && tree->keys[i] == val){
                     eraseKey(i);
                     numOfKeys--;
-                    if (tree->nextleaf != NULL) {
+                    if (tree->nextLeaf != NULL) {
                         //
                     }
 
@@ -635,13 +636,14 @@ class bTree
                     // go up parent node, and fix index keys
                     if (i == 0 && parentNode != NULL) {
                         int nextSmallest;
-                        for (int parentIdx = 0; parentNode->children[parentIdx] != tree; parentIdx++);
+                        int parentIdx = 0;
+                        for (parentIdx; parentNode->children[parentIdx] != tree; parentIdx++);
                         if (numOfKeys == 0) {
                             if (parentIdx == parentNode->getNumKeys()){
                                 //is this case possible?
                             }
                             else {
-                                nextSmallest = parentNode->children[parentIdx+1]
+                                nextSmallest = parentNode->children[parentIdx+1];
                             }
                         }
                         else {
@@ -651,10 +653,10 @@ class bTree
                             if (parentNode > 0 && parentNode->keys[parentIdx - 1] == val){
                                 parentNode->keys[parentIdx - 1] = nextSmallest;
                             }
-                            Node * grandParent = parentNode
+                            Node * grandParent = parentNode;
                         }
                     }
-                    repairAfterDelete(tree);
+                    repairAfterDeletion(tree);
                 }
                 else {
                     //is there more conditions?
@@ -741,7 +743,7 @@ class bTree
                 for (int i = 1; i < tree->getNumKeys(); i--){
                     tree->children[i] = tree->children[i-1];
                 }
-                tree->children[0] = leftSib->children[leftSib->getNumKeys()]
+                tree->children[0] = leftSib->children[leftSib->getNumKeys()];
                 
                 leftSib->children[leftSib->getNumKeys()] = NULL;
             }
@@ -756,21 +758,23 @@ class bTree
                 }
                 else {
                     Node * parentNode = getParent(tree);
-                    for (int parentIdx = 0; parentNode->children[parentIdx] != tree; parentIdx++);
+                    int parentIdx = 0;
 
-                    if (parentIdx > 0 && parentNode->children[parentIdx-1].numKeys > tree->getMiniNoKeys(){
+                    for (parentIdx; parentNode->children[parentIdx] != tree; parentIdx++);
+
+                    if (parentIdx > 0 && parentNode->children[parentIdx-1].numKeys > tree->getMiniNoKeys()){
                         borrowFromLeft(tree, parentIdx);
-                    })
-                    else if (parentIdx < parentNode->getNumKeys() && parentNode->children[parentIndex + 1]->getNumKeys() > tree->getMiniNoKeys()) {
+                    }
+                    else if (parentIdx < parentNode->getNumKeys() && parentNode->children[parentIdx + 1]->getNumKeys() > tree->getMiniNoKeys()) {
                         borrowFromRight(tree, parentIdx);
                     }
                     else if (parentIdx == 0){
                         Node * nextNode = mergeRight(tree);
-                        repairAfterDeletion(getParent(nextNode);
+                        repairAfterDeletion(getParent(nextNode));
                     }
                     else {
                         Node * nextNode = mergeRight(parentNode->children[parentIdx - 1]);
-                        repairAfterDeletion(getParent(nextNode);
+                        repairAfterDeletion(getParent(nextNode));
                     }
                 }
             }
@@ -930,6 +934,5 @@ int main()
 //     //tree.insert(5,&c);
 //     //tree.insert(6,&c);
 //     //tree.getRoot()->printAllNodes();
-// test
     return 0;
 }
