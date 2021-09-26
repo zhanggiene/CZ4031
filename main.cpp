@@ -9,7 +9,8 @@ experiment 3:
 6.731818181818184
 
 b+tree result:
-ize of result is110number of records is110the average of “averageRating’s” of the records: is 6.76273 
+ize of result is110number of records is110
+the average of “averageRating’s” of the records: is 6.76273 
 
 
 experiement 4:

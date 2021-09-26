@@ -107,13 +107,24 @@ class Database {
             float SUM=0;
 
             vector<float> allRatings;
+            vector<float> allnumVotes;
             cout<<"Size of result: "<<result.size()<<"\n";
             for(auto x: result)
             {
                 float temp=disk.getRecord(x.first,x.second).rating;
+                int temp2=disk.getRecord(x.first,x.second).numVotes;
                 allRatings.push_back(temp);
+                allnumVotes.push_back(temp2);
             }
-            for(auto x: allRatings) SUM+=x;
+            for(auto x: allRatings){
+                SUM+=x;
+                cout <<x<<",";
+            } 
+            cout << endl;
+            for(auto x: allnumVotes){
+                cout <<x<<",";
+            }
+            cout <<"sum:" << SUM<<endl;
             cout<<"Number of records: "<<allRatings.size()<<"\n";
             cout<<"Average of \"averageRating\"s of the records: "<<SUM/allRatings.size()<<"\n";
         }
@@ -127,13 +138,24 @@ class Database {
             float SUM=0;
 
             vector<float> allRatings;
+            vector<float> allnumVotes;
             cout<<"size of result is"<<result.size();
             for(auto x: result)
             {
                 float temp=disk.getRecord(x.first,x.second).rating;
                 allRatings.push_back(temp);
+                int temp2=disk.getRecord(x.first,x.second).numVotes;
+                allnumVotes.push_back(temp2);
             }
-            for(auto x: allRatings) SUM+=x;
+            for(auto x: allRatings){
+                SUM+=x;
+                cout <<x<<",";
+            } 
+            cout << endl;
+            for(auto x: allnumVotes){
+                cout <<x<<",";
+            }
+            cout <<"sum:" << SUM<<endl;
             cout<<"number of records is"<<allRatings.size();
             cout<<"the average of “averageRating’s” of the records: is "<<SUM/allRatings.size();
         }
