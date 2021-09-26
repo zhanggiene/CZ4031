@@ -764,7 +764,7 @@ class bTree
                     int parentIdx = 0;
                     for (parentIdx; parentNode->children[parentIdx] != tree; parentIdx++);
 
-                    if (parentIdx > 0 && parentNode->children[parentIdx-1].numKeys > tree->getMiniNoKeys()){
+                    if (parentIdx > 0 && parentNode->children[parentIdx-1]->getNumKeys() > tree->getMiniNoKeys()){
                         borrowFromLeft(tree, parentIdx);
                     }
                     else if (parentIdx < parentNode->getNumKeys() && parentNode->children[parentIdx + 1]->getNumKeys() > tree->getMiniNoKeys()) {
