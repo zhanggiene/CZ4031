@@ -776,12 +776,6 @@ class bTree
                     }
                     else {
                         Node * nextNode = mergeRight((Node*)parentNode->children[parentIdx - 1]);
-                        // to Annan: 
-                        //
-                        // (1) parentNode error
-                        //     In line 766, 769, 777
-                        //
-                        // Sorry I am unable to fix these 5 bugs. Please help :D Thank you!
                         repairAfterDeletion(getParent(nextNode));
                     }
                 }
