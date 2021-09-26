@@ -665,7 +665,7 @@ class bTree
             } 
         }
 
-        void mergeRight(Node * tree) {
+        Node * mergeRight(Node * tree) {
             Node * parentNode = getParent(tree);
             int parentIdx = 0;
             for (parentIdx = 0; parentNode->children[parentIdx] != tree; parentIdx++);
@@ -698,6 +698,7 @@ class bTree
                 parentNode->keys[i-1] = parentNode->keys[i];
                 parentNode->eraseKey(i);
             }
+            return tree;
         }
 
         void borrowFromRight(Node * tree, int parentIdx) {
@@ -759,8 +760,8 @@ class bTree
                 }
                 else {
                     Node * parentNode = getParent(tree);
-                    int parentIdx = 0;
 
+                    int parentIdx = 0;
                     for (parentIdx; parentNode->children[parentIdx] != tree; parentIdx++);
 
                     if (parentIdx > 0 && parentNode->children[parentIdx-1].numKeys > tree->getMiniNoKeys()){
@@ -779,10 +780,6 @@ class bTree
                         //
                         // (1) parentNode error
                         //     In line 766, 769, 777
-                        //
-                        // (2) mergeRight error
-                        //     In line 773, 777
-                        //     Zhuyan taught me that it is because of the mergeRight does not return anything. 
                         //
                         // Sorry I am unable to fix these 5 bugs. Please help :D Thank you!
                         repairAfterDeletion(getParent(nextNode));
