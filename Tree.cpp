@@ -644,7 +644,7 @@ class bTree
                                 //is this case possible?
                             }
                             else {
-                                nextSmallest = (int) parentNode->children[parentIdx+1];
+                                nextSmallest = (int) parentNode->keys[parentIdx+1];
                             }
                         }
                         else {
@@ -786,155 +786,155 @@ class bTree
 
 
 
-int main()
-{
-    int a=1;
-    int b=2;
-    int c=3;
-    int d=4;
-    bTree tree=bTree(3);
+// int main()
+// {
+//     int a=1;
+//     int b=2;
+//     int c=3;
+//     int d=4;
+//     bTree tree=bTree(3);
 
-    tree.insertToBTree(1,&a);
-    tree.printNodeTree();
-    tree.insertToBTree(2,&a);
-    tree.printNodeTree();
-    tree.insertToBTree(3,&b);
-    tree.printNodeTree();
+//     tree.insertToBTree(1,&a);
+//     tree.printNodeTree();
+//     tree.insertToBTree(2,&a);
+//     tree.printNodeTree();
+//     tree.insertToBTree(3,&b);
+//     tree.printNodeTree();
 
-    tree.insertToBTree(4,&b);
-    tree.printNodeTree();
+//     tree.insertToBTree(4,&b);
+//     tree.printNodeTree();
 
 
-    tree.insertToBTree(5,&c);
-    tree.printNodeTree();
-    tree.insertToBTree(6,&c);
-    tree.printNodeTree();
-    tree.insertToBTree(6,&c);
-    tree.printNodeTree();
-    tree.insertToBTree(7,&d);
-    tree.printNodeTree();
-    // tree.insertToBTree(6,&d);
-    // tree.printNodeTree();
-    // tree.insertToBTree(7,&d);
-    // tree.printNodeTree();
-
-    tree.printLastRow();
-
-    // tree.printLastRowPointers();
-
-    // tree.insertToBTree(8,&b);
-    // tree.printNodeTree();
-    // tree.insertToBTree(9,&b);
-    // tree.printNodeTree();
-
-    // tree.insertToBTree(10,&b);
-    // tree.printNodeTree();
-    // tree.insertToBTree(11,&b);
-    // tree.printNodeTree();
-    // tree.insertToBTree(12,&b);
-    // tree.printNodeTree();
-    // tree.insertToBTree(13,&b);
-    // tree.printNodeTree();
-    // tree.insertToBTree(14,&b);
-    // tree.printNodeTree();
-
-    // tree.insertToBTree(15,&b);
-    // tree.printNodeTree();
-    // tree.insertToBTree(16,&b);
-    // tree.printNodeTree();
-    // tree.insertToBTree(17,&b);
-    // tree.printNodeTree();
-    // tree.insertToBTree(18,&c);
-    // tree.printNodeTree();
-    // tree.insertToBTree(19,&c);
-    // tree.printNodeTree();
-    // tree.insertToBTree(20,&c);
-    // tree.printNodeTree();
-    // tree.insertToBTree(21,&c);
-    // tree.printNodeTree();
-    // tree.insertToBTree(22,&c);
-    // tree.printNodeTree();
-    // tree.insertToBTree(23,&c);
-    // tree.printNodeTree();
-    // tree.insertToBTree(24,&c);
-    // tree.printNodeTree();
-    // tree.insertToBTree(25,&c);
-    // tree.printNodeTree();
-    // tree.insertToBTree(26,&c);
-    // tree.printNodeTree();
-    // tree.insertToBTree(27,&c);
-    // tree.printNodeTree();
-    // tree.insertToBTree(28,&c);
-    // tree.printNodeTree();
-    // tree.insertToBTree(29,&c);
-    // tree.printNodeTree();
-    // tree.insertToBTree(30,&c);
-    // tree.printNodeTree();
-    // tree.insertToBTree(31,&c);
-    // tree.printNodeTree();
-    // tree.insertToBTree(32,&c);
-    // tree.printNodeTree();
-    // tree.insertToBTree(33,&c);
-    // tree.printNodeTree();
-
-    // tree.insertToBTree(16,&a);
-    // tree.printNodeTree();   
-    // tree.insertToBTree(15,&a);
-    // tree.printNodeTree();
-    // tree.insertToBTree(14,&a);
-    // tree.printNodeTree();
-    // tree.insertToBTree(13,&a);
-    // tree.printNodeTree();
-    // tree.insertToBTree(12,&a);
-    // tree.printNodeTree();
-    // tree.insertToBTree(11,&a);
-    // tree.printNodeTree();
-    // tree.insertToBTree(10,&a);
-    // tree.printNodeTree();
-    // tree.insertToBTree(9,&b);
-    // tree.printNodeTree();
-    // tree.insertToBTree(8,&b);
-    // tree.printNodeTree();
-    // tree.insertToBTree(7,&b);
-    // tree.printNodeTree();
-
-    // tree.insertToBTree(6,&b);
-    // tree.printNodeTree();
-    // tree.insertToBTree(5,&b);
-    // tree.printNodeTree(); //<-
-    // tree.insertToBTree(4,&b);
-    // tree.printNodeTree();
-    // tree.insertToBTree(3,&b);
-    // tree.printNodeTree();
-    // tree.insertToBTree(2,&b);
-    // tree.printNodeTree();
-
-//     // tree.insertToBTree(1,&b);
+//     tree.insertToBTree(5,&c);
+//     tree.printNodeTree();
+//     tree.insertToBTree(6,&c);
+//     tree.printNodeTree();
+//     tree.insertToBTree(6,&c);
+//     tree.printNodeTree();
+//     tree.insertToBTree(7,&d);
+//     tree.printNodeTree();
+//     // tree.insertToBTree(6,&d);
 //     // tree.printNodeTree();
+//     // tree.insertToBTree(7,&d);
+//     // tree.printNodeTree();
+
+//     tree.printLastRow();
+
+//     // tree.printLastRowPointers();
+
+//     // tree.insertToBTree(8,&b);
+//     // tree.printNodeTree();
+//     // tree.insertToBTree(9,&b);
+//     // tree.printNodeTree();
+
+//     // tree.insertToBTree(10,&b);
+//     // tree.printNodeTree();
+//     // tree.insertToBTree(11,&b);
+//     // tree.printNodeTree();
+//     // tree.insertToBTree(12,&b);
+//     // tree.printNodeTree();
+//     // tree.insertToBTree(13,&b);
+//     // tree.printNodeTree();
+//     // tree.insertToBTree(14,&b);
+//     // tree.printNodeTree();
+
+//     // tree.insertToBTree(15,&b);
+//     // tree.printNodeTree();
+//     // tree.insertToBTree(16,&b);
+//     // tree.printNodeTree();
+//     // tree.insertToBTree(17,&b);
+//     // tree.printNodeTree();
+//     // tree.insertToBTree(18,&c);
+//     // tree.printNodeTree();
+//     // tree.insertToBTree(19,&c);
+//     // tree.printNodeTree();
+//     // tree.insertToBTree(20,&c);
+//     // tree.printNodeTree();
+//     // tree.insertToBTree(21,&c);
+//     // tree.printNodeTree();
+//     // tree.insertToBTree(22,&c);
+//     // tree.printNodeTree();
+//     // tree.insertToBTree(23,&c);
+//     // tree.printNodeTree();
+//     // tree.insertToBTree(24,&c);
+//     // tree.printNodeTree();
+//     // tree.insertToBTree(25,&c);
+//     // tree.printNodeTree();
+//     // tree.insertToBTree(26,&c);
+//     // tree.printNodeTree();
+//     // tree.insertToBTree(27,&c);
+//     // tree.printNodeTree();
+//     // tree.insertToBTree(28,&c);
+//     // tree.printNodeTree();
+//     // tree.insertToBTree(29,&c);
+//     // tree.printNodeTree();
+//     // tree.insertToBTree(30,&c);
+//     // tree.printNodeTree();
+//     // tree.insertToBTree(31,&c);
+//     // tree.printNodeTree();
+//     // tree.insertToBTree(32,&c);
+//     // tree.printNodeTree();
+//     // tree.insertToBTree(33,&c);
+//     // tree.printNodeTree();
+
+//     // tree.insertToBTree(16,&a);
+//     // tree.printNodeTree();   
+//     // tree.insertToBTree(15,&a);
+//     // tree.printNodeTree();
+//     // tree.insertToBTree(14,&a);
+//     // tree.printNodeTree();
+//     // tree.insertToBTree(13,&a);
+//     // tree.printNodeTree();
+//     // tree.insertToBTree(12,&a);
+//     // tree.printNodeTree();
+//     // tree.insertToBTree(11,&a);
+//     // tree.printNodeTree();
+//     // tree.insertToBTree(10,&a);
+//     // tree.printNodeTree();
+//     // tree.insertToBTree(9,&b);
+//     // tree.printNodeTree();
+//     // tree.insertToBTree(8,&b);
+//     // tree.printNodeTree();
+//     // tree.insertToBTree(7,&b);
+//     // tree.printNodeTree();
+
+//     // tree.insertToBTree(6,&b);
+//     // tree.printNodeTree();
+//     // tree.insertToBTree(5,&b);
+//     // tree.printNodeTree(); //<-
+//     // tree.insertToBTree(4,&b);
+//     // tree.printNodeTree();
+//     // tree.insertToBTree(3,&b);
+//     // tree.printNodeTree();
+//     // tree.insertToBTree(2,&b);
+//     // tree.printNodeTree();
+
+// //     // tree.insertToBTree(1,&b);
+// //     // tree.printNodeTree();
     
-//     // vector<int> intvec = {1, 2, 3, 4};
-//     // vector<int> newvec;
-//     // newvec.insert(newvec.begin(),intvec.begin()+2, intvec.begin()+3);
-//     // intvec.erase(intvec.begin()+2, intvec.begin()+intvec.size());    
-//     // for (auto i : intvec){
-//     //     cout << i<< "\t";
-//     // }
-//     // cout <<"\n";
-//     // for (auto i : newvec){
-//     //     cout << i<< "\t";
-//     // }
-//     // cout <<"\n";
-//     // tree.insert(3,&c);
-//     // tree.insert(4,&c);
-//     // tree.insert(5,&c);
-//     // tree.insert(6,&c);
-//     // tree.insert(7,&c);
-//     // tree.getRoot()->printThisNode();
-//     //Node* temp=(Node* )tree.getRoot()->children[2];
-//     //temp->printThisNode();
-//     //tree.insert(4,&c);
-//     //tree.insert(5,&c);
-//     //tree.insert(6,&c);
-//     //tree.getRoot()->printAllNodes();
-    return 0;
-}
+// //     // vector<int> intvec = {1, 2, 3, 4};
+// //     // vector<int> newvec;
+// //     // newvec.insert(newvec.begin(),intvec.begin()+2, intvec.begin()+3);
+// //     // intvec.erase(intvec.begin()+2, intvec.begin()+intvec.size());    
+// //     // for (auto i : intvec){
+// //     //     cout << i<< "\t";
+// //     // }
+// //     // cout <<"\n";
+// //     // for (auto i : newvec){
+// //     //     cout << i<< "\t";
+// //     // }
+// //     // cout <<"\n";
+// //     // tree.insert(3,&c);
+// //     // tree.insert(4,&c);
+// //     // tree.insert(5,&c);
+// //     // tree.insert(6,&c);
+// //     // tree.insert(7,&c);
+// //     // tree.getRoot()->printThisNode();
+// //     //Node* temp=(Node* )tree.getRoot()->children[2];
+// //     //temp->printThisNode();
+// //     //tree.insert(4,&c);
+// //     //tree.insert(5,&c);
+// //     //tree.insert(6,&c);
+// //     //tree.getRoot()->printAllNodes();
+//     return 0;
+// }
