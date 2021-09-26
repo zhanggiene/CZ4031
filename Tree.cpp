@@ -764,10 +764,10 @@ class bTree
                     int parentIdx = 0;
                     for (parentIdx; parentNode->children[parentIdx] != tree; parentIdx++);
 
-                    if (parentIdx > 0 && parentNode->children[parentIdx-1]->getNumKeys() > tree->getMiniNoKeys()){
+                    if (parentIdx > 0 && ((Node*)parentNode->children[parentIdx-1])->getNumKeys() > tree->getMiniNoKeys()){
                         borrowFromLeft(tree, parentIdx);
                     }
-                    else if (parentIdx < parentNode->getNumKeys() && parentNode->children[parentIdx + 1]->getNumKeys() > tree->getMiniNoKeys()) {
+                    else if (parentIdx < parentNode->getNumKeys() && ((Node*)parentNode->children[parentIdx + 1])->getNumKeys() > tree->getMiniNoKeys()) {
                         borrowFromRight(tree, parentIdx);
                     }
                     else if (parentIdx == 0){
@@ -775,7 +775,7 @@ class bTree
                         repairAfterDeletion(getParent(nextNode));
                     }
                     else {
-                        Node * nextNode = mergeRight(parentNode->children[parentIdx - 1]);
+                        Node * nextNode = mergeRight((Node*)parentNode->children[parentIdx - 1]);
                         // to Annan: 
                         //
                         // (1) parentNode error
