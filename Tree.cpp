@@ -177,16 +177,19 @@ class bTree
                 _root->addToValues(value, 0);
                 return;
             }
+
             //For all other cases, find the leaf node we are inserting into 
-            Node * nodeToInsertInto = findLeafNodeToInsert(key);
+            vector<Node *> traversedPath = traversalPathOfInsertion(key);
+            Node * nodeToInsertInto = traversedPath.back();
+            traversedPath.pop_back();
 
             //starting from this leaf node
             while (true){ 
                 //Case 2: Current node is not full
                 if (!nodeToInsertInto->isFull()){
                     int keyIndexToInsertAt = findKeyIndexToInsert(nodeToInsertInto, key);
-                    nodeToInsertInto->addToKeys(key, keyIndexToInsertAt);
                     int valueIndexToInsertAt = findValueIndexToInsert(nodeToInsertInto, key);
+                    nodeToInsertInto->addToKeys(key, keyIndexToInsertAt);
                     nodeToInsertInto->addToValues(value, valueIndexToInsertAt);
                     break; //stop adding once it has been added to an empty node
                 } else {
@@ -194,16 +197,19 @@ class bTree
                     if (nodeToInsertInto->leaf){
                         //Split node [1, 2, 3] + 4 -> [1,2] [3, 4]
                         Node * newLeafNode = splitLeafNode(nodeToInsertInto, key, value);
+
                         key = newLeafNode->keys[0]; //this will be the smallest
                         value = newLeafNode; //Next node to insert
-                        Node * parentNode = getParent(nodeToInsertInto); //get this leaf node's parent
-                        //if the parentNode is already a root node
-                        if (parentNode == NULL) {
-                            parentNode = createNewNonLeafNode(); //no longer leaf
+    
+                        //if there is no parent (this is root)
+                        if (traversedPath.empty()) {
+                            Node * parentNode = createNewNonLeafNode(); //no longer leaf
                             parentNode->addToValues(nodeToInsertInto, 0);
                             nodeToInsertInto = parentNode;
                             _root = parentNode;
                         } else {
+                            Node * parentNode = traversedPath.back();//get this leaf node's parent
+                            traversedPath.pop_back(); 
                             nodeToInsertInto = parentNode;
                         }
                     } 
@@ -214,14 +220,17 @@ class bTree
                         key = newNonLeafNode->keys[0]; //this will be the smallest (used for root)
                         newNonLeafNode->eraseKeys(0, 1); //Node [1,2] [3, 4] -> Node [1,2] [4]
                         value = newNonLeafNode; //next value to insert
-                        Node * parentNode = getParent(nodeToInsertInto); //get this leaf node's parent
-                        //if the parentNode is already a root node
-                        if (parentNode == NULL) {
-                            parentNode = createNewNonLeafNode(); //no longer leaf
+                       
+                        
+                        //if there is no parent (this is root)
+                        if (traversedPath.empty()) {
+                            Node * parentNode = createNewNonLeafNode(); //no longer leaf
                             parentNode->addToValues(nodeToInsertInto, 0);
                             nodeToInsertInto = parentNode;
                             _root = parentNode;
                         } else {
+                             Node * parentNode = traversedPath.back();//get this non leaf node's parent
+                            traversedPath.pop_back(); 
                             nodeToInsertInto = parentNode;
                         }
                     }
@@ -233,9 +242,10 @@ class bTree
             //Create new leaf node 
             Node * newLeafNode = createNewLeafNode();
             //temporarily insert into the old node (this node will overflow)
-            int keyIndexToInsertAt = findKeyIndexToInsert(oldNode, key);
-            oldNode->addToKeys(key, keyIndexToInsertAt);
+
+            int keyIndexToInsertAt = findKeyIndexToInsert(oldNode, key);     
             int valueIndexToInsertAt = findValueIndexToInsert(oldNode, key);
+            oldNode->addToKeys(key, keyIndexToInsertAt);
             oldNode->addToValues(value, valueIndexToInsertAt);
             
             //get index to split (everything at & after the index will be shifted to new node)
@@ -243,7 +253,6 @@ class bTree
             //eg. 1 2 [3 4 5] (degree=4) then return index=2
             //eg. 1 2 3 [4 5 6] (degree=5) then return index=3
             int indexToSplit = floor((degree+1)/2);
-            // cout << "indexToSplit: "<<indexToSplit<<"\n";
 
             //Populate the new leaf node with [3, 4] and remove [3, 4] from old leaf node
             newLeafNode->insertKeysFromOtherNode(oldNode, 
@@ -257,11 +266,14 @@ class bTree
 
             // //add the new leaf node's pointer to the end of old leaf node
             // //[1 2] -> [3 4]  old<->new
-            // oldNode->addToValues(newLeafNode, oldNode->getNumValues());
+            Node * prevNextLeafNode = oldNode->nextLeaf;
             newLeafNode->previousLeaf=oldNode;
-            newLeafNode->nextLeaf=oldNode->nextLeaf;
-            if (oldNode->nextLeaf!=NULL) oldNode->nextLeaf->previousLeaf=newLeafNode;
             oldNode->nextLeaf=newLeafNode;
+            // //[1 2] -> [3 4]  new <-> prevNextNode
+            if (prevNextLeafNode!=NULL){
+                newLeafNode->nextLeaf = prevNextLeafNode;
+                prevNextLeafNode->previousLeaf = newLeafNode->previousLeaf;
+            } 
 
 
             return newLeafNode;
@@ -272,49 +284,33 @@ class bTree
             //Create new nonleaf node 
             Node * newNonLeafNode = createNewNonLeafNode();
             //temporarily insert into the old node (this node will overflow)
+            
             int keyIndexToInsertAt = findKeyIndexToInsert(oldNode, key);
+            int valueIndexToInsertAt = findValueIndexToInsert(oldNode, key);;
             oldNode->addToKeys(key, keyIndexToInsertAt);
-            int valueIndexToInsertAt = findValueIndexToInsert(oldNode, key);
-            oldNode->addToValues(value, valueIndexToInsertAt);
+            oldNode->addToValues(value, keyIndexToInsertAt+1);
+            
             //get index to split (everything at & after the index will be shifted to new node)
             //eg. 1 2 [3 4] (degree=3) then return index=2
             //eg. 1 2 [3 4 5] (degree=4) then return index=2
             //eg. 1 2 3 [4 5 6] (degree=5) then return index=3
             int indexToSplit = floor((degree+1)/2);
 
+            
             //Populate the new leaf node with [3, 4] and remove [3, 4] from old leaf node
             newNonLeafNode->insertKeysFromOtherNode(oldNode, 
                                                 indexToSplit, 
                                                 oldNode->getNumKeys());
+            
             oldNode->eraseKeys(indexToSplit, oldNode->getNumKeys()) ;
+            
             newNonLeafNode->insertValuesFromOtherNode(oldNode, 
                                                     indexToSplit+1,  //difference is here
                                                     oldNode->getNumValues());
             oldNode->eraseValues(indexToSplit+1, //difference is here
                             oldNode->getNumValues());
+             
             return newNonLeafNode;
-        }
-
-        Node * getParent(Node * node){
-            int smallestKey = node->keys[0];
-            //return null if this is already the root node
-            Node * current_node = _root;
-            if (node == _root){
-                return NULL;
-            } 
-            else {
-                while (true){
-                    //if the current node has this node as a child
-                    for (void * value : current_node->children){
-                        if (value == node){
-                            return current_node;
-                        }
-                    }
-                    //if the current node does not contain this node as a child
-                    int  valueIndex = findKeyIndexToInsert(current_node,smallestKey);
-                    current_node = (Node *)current_node->children[valueIndex];
-                }
-            }
         }
 
         //find index in keys of node to insert into
@@ -335,25 +331,43 @@ class bTree
 
         //find index in values of node to insert into
         int findValueIndexToInsert(Node * nodeToInsert, int key){
-            //compare the key with the keys of the current node
-            for (int i=0;i<nodeToInsert->keys.size();i++){
-                //imagine keys 2, 3, 5
-                //insert 4
-                if (nodeToInsert->keys[i] > key){
-                    return i;
+            if (nodeToInsert->leaf){
+                //compare the key with the keys of the current node
+                for (int i=0;i<nodeToInsert->keys.size();i++){
+                    //imagine keys 2, 3, 5
+                    //insert 4
+                    if (nodeToInsert->keys[i] > key){
+                        return i;
+                    }
                 }
+                //if the key is bigger than all the keys in current node
+                //imagine keys 2, 3, 4
+                //insert 5
+                return (nodeToInsert->getNumValues());
+            } else {
+                for (int i=0;i<nodeToInsert->keys.size();i++){
+                    //imagine keys 2, 3, 5
+                    //insert 4
+                    if (nodeToInsert->keys[i] > key){
+                        return i+1;
+                    }
+                }
+                //if the key is bigger than all the keys in current node
+                //imagine keys 2, 3, 4
+                //insert 5
+                return (nodeToInsert->getNumValues());
             }
-            //if the key is bigger than all the keys in current node
-            //imagine keys 2, 3, 4
-            //insert 5
-            return (nodeToInsert->getNumValues());
+            
         }
 
-        Node * findLeafNodeToInsert(int key){
+        //vector<Node*> (traversal path to get the parents of all)
+        //[root,nonleaf,leaf]
+        vector<Node*> traversalPathOfInsertion(int key){
             //traverse the tree downwards until we find the leaf node
+                vector <Node*> traversalNodes;
                 Node * current_node = _root;
+                traversalNodes.push_back(current_node);
                 //if it is not a leaf
-                
                 while (!current_node->leaf){
                     //compare the key with the keys of the current node
                     for (int i=0;i<current_node->keys.size();i++){
@@ -367,13 +381,14 @@ class bTree
                         //if the key is bigger than all the keys in current node
                         //imagine keys 2, 3, 4
                         //insert 5
-                        if (i==current_node->keys.size()-1){
+                        if (i==current_node->getNumKeys()-1){
                             current_node = (Node *) current_node->children[current_node->getNumValues()-1];
                             break;
                         }
                     }
+                    traversalNodes.push_back(current_node);
                 }
-                return current_node;
+                return traversalNodes;
         }
 
         //bfs print from node
@@ -413,7 +428,8 @@ class bTree
         //To check
         void printLastRow(){
             cout << "printLastRow:\n";
-            Node * node = (Node *) findLeafNodeToInsert(-1);
+            vector<Node *> traversedPath = traversalPathOfInsertion(-1);
+            Node * node = (Node *) traversedPath.back();
             while (true){
                 node->printAllKeys();
                 if (node->isTerminalLeafNode()){
@@ -426,7 +442,8 @@ class bTree
         //To check that the leaf node pointers are right
         void printLastRowPointers(){
             cout << "printLastRowPointers:\n";
-            Node * node = (Node *) findLeafNodeToInsert(-1);
+            vector<Node *> traversedPath = traversalPathOfInsertion(-1);
+            Node * node = (Node *) traversedPath.back();
             while (true){
                 node->printAllChildren();
                 if (node->isTerminalLeafNode()){
@@ -434,6 +451,20 @@ class bTree
                 }
                 node = node->getNextNode();
             }
+        }
+
+        vector<void*> returnLastRowPointers(){
+            vector<void*> children;
+            vector<Node *> traversedPath = traversalPathOfInsertion(-1);
+            Node * node = (Node *) traversedPath.back();
+            while (true){
+                children.insert(children.end(), node->children.begin(), node->children.end());
+                if (node->isTerminalLeafNode()){
+                    break;
+                }
+                node = node->getNextNode();
+            }
+            return children;
         }
 
         Node * createNewLeafNode(){
@@ -486,7 +517,7 @@ class bTree
             while(!current_node->leaf)
             {
                 indexNodeNumber+=1;
-                if (indexNodeNumber<6){ //first 5
+                if (true){ //first 5
                     current_node->printAllKeys();
                 }
                 if (counterIndex>0) {counterIndex-=1;}
@@ -512,6 +543,7 @@ class bTree
             {
                 dataNodeNumber+=1;
                 if (counterData>0){
+                    current_node->printAllKeys();
                     current_node->printAllChildren();
                     counterData-=1;
                 }
@@ -594,193 +626,193 @@ class bTree
 
         }
 
-        //deletion part starts here
-        void deleteFromTree(int val){
+        // //deletion part starts here
+        // void deleteFromTree(int val){
              
-            doDelete(val, getRoot());
+        //     doDelete(val, getRoot());
             
-            Node* treeRoot = getRoot();
-            if (treeRoot->keys.size() == 0){
-                //tree is empty
-            }
+        //     Node* treeRoot = getRoot();
+        //     if (treeRoot->keys.size() == 0){
+        //         //tree is empty
+        //     }
 
-        }
+        // }
 
-        void doDelete(int val, Node* tree) {
-            int numOfKeys = tree->getNumKeys();
-            if (tree != NULL) {
-                int i = 0;
-                for (i; i < numOfKeys && tree->keys[i] < val; i++);
-                if (i == numOfKeys) {
-                    if (!tree->leaf) {
-                        doDelete(val, (Node *)tree->children[numOfKeys]);
-                    } else {
-                        //delete the last key
+        // void doDelete(int val, Node* tree) {
+        //     int numOfKeys = tree->getNumKeys();
+        //     if (tree != NULL) {
+        //         int i = 0;
+        //         for (i; i < numOfKeys && tree->keys[i] < val; i++);
+        //         if (i == numOfKeys) {
+        //             if (!tree->leaf) {
+        //                 doDelete(val, (Node *)tree->children[numOfKeys]);
+        //             } else {
+        //                 //delete the last key
 
-                    }
-                }
-                else if (!tree->leaf && tree->keys[i] == val){
-                    doDelete(val, (Node *)tree->children[i+1]);
-                }
-                else if (!tree->leaf) {
-                    doDelete(val, (Node *)tree->children[i]);
-                }
-                else if (tree->leaf && tree->keys[i] == val){
-                    int eraseKey(i);
-                    numOfKeys--;
-                    if (tree->nextLeaf != NULL) {
-                        //
-                    }
+        //             }
+        //         }
+        //         else if (!tree->leaf && tree->keys[i] == val){
+        //             doDelete(val, (Node *)tree->children[i+1]);
+        //         }
+        //         else if (!tree->leaf) {
+        //             doDelete(val, (Node *)tree->children[i]);
+        //         }
+        //         else if (tree->leaf && tree->keys[i] == val){
+        //             int eraseKey(i);
+        //             numOfKeys--;
+        //             if (tree->nextLeaf != NULL) {
+        //                 //
+        //             }
 
-                    Node * parentNode = getParent(tree);
-                    // if we remove the smallest element in a leaf and the leaf is now empty
-                    // go up parent node, and fix index keys
-                    if (i == 0 && parentNode != NULL) {
-                        int nextSmallest;
-                        int parentIdx = 0;
-                        for (parentIdx; parentNode->children[parentIdx] != tree; parentIdx++);
-                        if (numOfKeys == 0) {
-                            if (parentIdx == parentNode->getNumKeys()){
-                                //is this case possible?
-                            }
-                            else {
-                                nextSmallest = (int) parentNode->keys[parentIdx+1];
-                            }
-                        }
-                        else {
-                            nextSmallest = tree->keys[0];
-                        }
-                        while (parentNode != NULL) {
-                            if (parentNode > 0 && parentNode->keys[parentIdx - 1] == val){
-                                parentNode->keys[parentIdx - 1] = nextSmallest;
-                            }
-                            Node * grandParent = parentNode;
-                        }
-                    }
-                    repairAfterDeletion(tree);
-                }
-                else {
-                    //is there more conditions?
-                }
-            } 
-        }
+        //             Node * parentNode = getParent(tree);
+        //             // if we remove the smallest element in a leaf and the leaf is now empty
+        //             // go up parent node, and fix index keys
+        //             if (i == 0 && parentNode != NULL) {
+        //                 int nextSmallest;
+        //                 int parentIdx = 0;
+        //                 for (parentIdx; parentNode->children[parentIdx] != tree; parentIdx++);
+        //                 if (numOfKeys == 0) {
+        //                     if (parentIdx == parentNode->getNumKeys()){
+        //                         //is this case possible?
+        //                     }
+        //                     else {
+        //                         nextSmallest = (int) parentNode->keys[parentIdx+1];
+        //                     }
+        //                 }
+        //                 else {
+        //                     nextSmallest = tree->keys[0];
+        //                 }
+        //                 while (parentNode != NULL) {
+        //                     if (parentNode > 0 && parentNode->keys[parentIdx - 1] == val){
+        //                         parentNode->keys[parentIdx - 1] = nextSmallest;
+        //                     }
+        //                     Node * grandParent = parentNode;
+        //                 }
+        //             }
+        //             repairAfterDeletion(tree);
+        //         }
+        //         else {
+        //             //is there more conditions?
+        //         }
+        //     } 
+        // }
 
-        Node * mergeRight(Node * tree) {
-            Node * parentNode = getParent(tree);
-            int parentIdx = 0;
-            for (parentIdx = 0; parentNode->children[parentIdx] != tree; parentIdx++);
-            Node * rightSib = (Node *)parentNode->children[parentIdx+1];
+        // Node * mergeRight(Node * tree) {
+        //     Node * parentNode = getParent(tree);
+        //     int parentIdx = 0;
+        //     for (parentIdx = 0; parentNode->children[parentIdx] != tree; parentIdx++);
+        //     Node * rightSib = (Node *)parentNode->children[parentIdx+1];
 
-            if (!tree->leaf) {
-                tree->keys[tree->getNumKeys()] = parentNode->keys[parentIdx];
-            }
+        //     if (!tree->leaf) {
+        //         tree->keys[tree->getNumKeys()] = parentNode->keys[parentIdx];
+        //     }
 
-            int fromParentIdx = tree->getNumKeys();
+        //     int fromParentIdx = tree->getNumKeys();
 
-            for (int i = 0; i < rightSib->getNumKeys(); i++){
-                int insertIdx = tree->getNumKeys() + 1 + i;
-                if (tree->leaf){
-                    insertIdx -= 1;
-                }
-                tree->keys[insertIdx] = rightSib->keys[i];
-            }
-            if (!tree->leaf) {
-                for (int i = 0; i <= rightSib->getNumKeys(); i++){
-                    tree->children[tree->getNumKeys() + 1 + i] = rightSib->children[i];
-                    //do we need to set parent mannually?
-                }
-            }
-            else {
-                tree->nextLeaf = rightSib->nextLeaf;
-            }
-            for (int i = parentIdx + 1; i < parentNode->getNumKeys(); i++) {
-                parentNode->children[i] = parentNode->children[i+1];
-                parentNode->keys[i-1] = parentNode->keys[i];
-                parentNode->eraseKey(i);
-            }
-            return tree;
-        }
+        //     for (int i = 0; i < rightSib->getNumKeys(); i++){
+        //         int insertIdx = tree->getNumKeys() + 1 + i;
+        //         if (tree->leaf){
+        //             insertIdx -= 1;
+        //         }
+        //         tree->keys[insertIdx] = rightSib->keys[i];
+        //     }
+        //     if (!tree->leaf) {
+        //         for (int i = 0; i <= rightSib->getNumKeys(); i++){
+        //             tree->children[tree->getNumKeys() + 1 + i] = rightSib->children[i];
+        //             //do we need to set parent mannually?
+        //         }
+        //     }
+        //     else {
+        //         tree->nextLeaf = rightSib->nextLeaf;
+        //     }
+        //     for (int i = parentIdx + 1; i < parentNode->getNumKeys(); i++) {
+        //         parentNode->children[i] = parentNode->children[i+1];
+        //         parentNode->keys[i-1] = parentNode->keys[i];
+        //         parentNode->eraseKey(i);
+        //     }
+        //     return tree;
+        // }
 
-        void borrowFromRight(Node * tree, int parentIdx) {
-            Node * parentNode = getParent(tree);
-            Node * rightSib = (Node *)parentNode->children[parentIdx + 1];
+        // void borrowFromRight(Node * tree, int parentIdx) {
+        //     Node * parentNode = getParent(tree);
+        //     Node * rightSib = (Node *)parentNode->children[parentIdx + 1];
 
-            if (tree->leaf){
-                tree->keys[tree->getNumKeys()-1] = rightSib->keys[0];
-                parentNode->keys[parentIdx] = rightSib->keys[1];
-            }
-            else {
-                tree->keys[tree->getNumKeys()-1] = parentNode->keys[parentIdx];
-                parentNode->keys[parentIdx] = rightSib->keys[0];
+        //     if (tree->leaf){
+        //         tree->keys[tree->getNumKeys()-1] = rightSib->keys[0];
+        //         parentNode->keys[parentIdx] = rightSib->keys[1];
+        //     }
+        //     else {
+        //         tree->keys[tree->getNumKeys()-1] = parentNode->keys[parentIdx];
+        //         parentNode->keys[parentIdx] = rightSib->keys[0];
 
-                tree->children[tree->getNumKeys()] = rightSib->children[0];
+        //         tree->children[tree->getNumKeys()] = rightSib->children[0];
 
-                for (int i = 1; i < rightSib->getNumKeys(); i++){
-                    rightSib->children[i-1] = rightSib->children[i];
-                }
-            }
-            for (int i = 1; i < rightSib->getNumKeys(); i++){
-                rightSib->keys[i-1] = rightSib->keys[i];
-            }
-        }
+        //         for (int i = 1; i < rightSib->getNumKeys(); i++){
+        //             rightSib->children[i-1] = rightSib->children[i];
+        //         }
+        //     }
+        //     for (int i = 1; i < rightSib->getNumKeys(); i++){
+        //         rightSib->keys[i-1] = rightSib->keys[i];
+        //     }
+        // }
 
-        void borrowFromLeft(Node * tree, int parentIdx) {
-            Node * parentNode = getParent(tree);
+        // void borrowFromLeft(Node * tree, int parentIdx) {
+        //     Node * parentNode = getParent(tree);
 
-            for (int i = tree->getNumKeys() - 1; i > 0; i--){
-                tree->keys[i] = tree->keys[i-1];
-            }
+        //     for (int i = tree->getNumKeys() - 1; i > 0; i--){
+        //         tree->keys[i] = tree->keys[i-1];
+        //     }
 
-            Node * leftSib = (Node *)parentNode->children[parentIdx - 1];
+        //     Node * leftSib = (Node *)parentNode->children[parentIdx - 1];
 
-            if (tree->leaf){
-                tree->keys[0] = leftSib->keys[leftSib->getNumKeys() - 1];
-                parentNode->keys[parentIdx - 1] = leftSib->keys[leftSib->getNumKeys() - 1];
-            }
-            else {
-                tree->keys[0] = parentNode->keys[parentIdx - 1];
-                parentNode->keys[parentIdx - 1] = leftSib->keys[leftSib->getNumKeys() - 1];
-                tree->children[parentIdx - 1] = (Node *)leftSib->keys[leftSib->getNumKeys() - 1];
+        //     if (tree->leaf){
+        //         tree->keys[0] = leftSib->keys[leftSib->getNumKeys() - 1];
+        //         parentNode->keys[parentIdx - 1] = leftSib->keys[leftSib->getNumKeys() - 1];
+        //     }
+        //     else {
+        //         tree->keys[0] = parentNode->keys[parentIdx - 1];
+        //         parentNode->keys[parentIdx - 1] = leftSib->keys[leftSib->getNumKeys() - 1];
+        //         tree->children[parentIdx - 1] = (Node *)leftSib->keys[leftSib->getNumKeys() - 1];
 
-                for (int i = 1; i < tree->getNumKeys(); i--){
-                    tree->children[i] = tree->children[i-1];
-                }
-                tree->children[0] = leftSib->children[leftSib->getNumKeys()];
+        //         for (int i = 1; i < tree->getNumKeys(); i--){
+        //             tree->children[i] = tree->children[i-1];
+        //         }
+        //         tree->children[0] = leftSib->children[leftSib->getNumKeys()];
                 
-                leftSib->children[leftSib->getNumKeys()] = NULL;
-            }
-        }
+        //         leftSib->children[leftSib->getNumKeys()] = NULL;
+        //     }
+        // }
 
-        void repairAfterDeletion(Node* tree){
-            if (tree->getNumKeys() < tree->getMiniNoKeys()){
-                if (getParent(tree) == NULL) {
-                    if (tree->getNumKeys() == 0){
-                        //tree is empty.
-                    }
-                }
-                else {
-                    Node * parentNode = getParent(tree);
+        // void repairAfterDeletion(Node* tree){
+        //     if (tree->getNumKeys() < tree->getMiniNoKeys()){
+        //         if (getParent(tree) == NULL) {
+        //             if (tree->getNumKeys() == 0){
+        //                 //tree is empty.
+        //             }
+        //         }
+        //         else {
+        //             Node * parentNode = getParent(tree);
 
-                    int parentIdx = 0;
-                    for (parentIdx; parentNode->children[parentIdx] != tree; parentIdx++);
+        //             int parentIdx = 0;
+        //             for (parentIdx; parentNode->children[parentIdx] != tree; parentIdx++);
 
-                    if (parentIdx > 0 && ((Node*)parentNode->children[parentIdx-1])->getNumKeys() > tree->getMiniNoKeys()){
-                        borrowFromLeft(tree, parentIdx);
-                    }
-                    else if (parentIdx < parentNode->getNumKeys() && ((Node*)parentNode->children[parentIdx + 1])->getNumKeys() > tree->getMiniNoKeys()) {
-                        borrowFromRight(tree, parentIdx);
-                    }
-                    else if (parentIdx == 0){
-                        Node * nextNode = mergeRight(tree);
-                        repairAfterDeletion(getParent(nextNode));
-                    }
-                    else {
-                        Node * nextNode = mergeRight((Node*)parentNode->children[parentIdx - 1]);
-                        repairAfterDeletion(getParent(nextNode));
-                    }
-                }
-            }
-        }   
+        //             if (parentIdx > 0 && ((Node*)parentNode->children[parentIdx-1])->getNumKeys() > tree->getMiniNoKeys()){
+        //                 borrowFromLeft(tree, parentIdx);
+        //             }
+        //             else if (parentIdx < parentNode->getNumKeys() && ((Node*)parentNode->children[parentIdx + 1])->getNumKeys() > tree->getMiniNoKeys()) {
+        //                 borrowFromRight(tree, parentIdx);
+        //             }
+        //             else if (parentIdx == 0){
+        //                 Node * nextNode = mergeRight(tree);
+        //                 repairAfterDeletion(getParent(nextNode));
+        //             }
+        //             else {
+        //                 Node * nextNode = mergeRight((Node*)parentNode->children[parentIdx - 1]);
+        //                 repairAfterDeletion(getParent(nextNode));
+        //             }
+        //         }
+        //     }
+        // }   
 };
 
 

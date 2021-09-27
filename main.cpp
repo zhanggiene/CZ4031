@@ -26,7 +26,7 @@ int main(){
     int n = 7;
     // Database database("tsv_files/data.tsv", n);
     // 3 means the maximum number of keys allowed.
-    // Database database("tsv_files/testing3.tsv",3);
+    // Database database("tsv_files/testing2.tsv",3);
     Database database("tsv_files/data.tsv",7);
 
     int choice;
@@ -55,8 +55,10 @@ int main(){
             cout << "Experiment 2: Build a B+ tree on the attribute \"numVotes\"\n";
             database.addToDiskAndBplus();
             database.experiment2();
-            database.printTree(); //for debugging
-            database.printLastRowOfPointers();
+            // database.printTree(); //for debugging
+            // database.printLastRowOfPointers();
+            // database.printAllRecords();
+            // database.printAllRecordsAccordingToIndex();
             break;
         case 3:
             cout<<"Experiment 3: Retrieve movies with attribute \"numVotes\" equal to 500\n";

@@ -111,11 +111,13 @@ class Database {
             cout<<"Size of result: "<<result.size()<<"\n";
             for(auto x: result)
             {
+                cout<< "<"<<x.first<<","<<x.second<<">"<<",";
                 float temp=disk.getRecord(x.first,x.second).rating;
                 int temp2=disk.getRecord(x.first,x.second).numVotes;
                 allRatings.push_back(temp);
                 allnumVotes.push_back(temp2);
             }
+            cout << endl;
             for(auto x: allRatings){
                 SUM+=x;
                 cout <<x<<",";
@@ -171,6 +173,29 @@ class Database {
 
         void printLastRowOfPointers(){
             this->btree.printLastRowPointers();
+            cout << endl;
         }
+
+        void printAllRecordsAccordingToIndex(){
+            cout << "printAllRecordsAccordingToIndex"<<endl;
+            vector<void *> children =  this->btree.returnLastRowPointers();
+            for (auto child:children){
+                pair<int,int>* castedChild = (pair<int,int>*) child;
+                cout<< "<"<<castedChild->first<<","<<castedChild->second<<">"<<": ";
+                cout<<disk.getRecord(castedChild->first,castedChild->second).toString();
+            }
+        }
+
+         void printAllRecords(){
+            cout << "printAllRecords"<<endl;
+            vector<void *> children =  this->btree.returnLastRowPointers();
+            cout <<"|";
+            for (int i=0;i<children.size();i++){
+                pair<int,int>* castedChild = (pair<int,int>*) children[i];
+                cout<<disk.getRecord(castedChild->first,castedChild->second).getNumVotes()<<"|";
+            }
+            cout<<endl;
+        }
+
     
 };
