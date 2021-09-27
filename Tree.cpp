@@ -7,16 +7,26 @@
 #include <algorithm>
 #include <math.h>
 
+
 using namespace std;
 
 // https://www.youtube.com/watch?v=kjBI0rimo-w&t=1401s&ab_channel=Mayopepeweezy
 // https://www.cs.usfca.edu/~galles/visualization/BPlusTree.html
 struct Node
+//class Node
 {
 
     /* data */
+    //
+    //------------------------------------------------------------------------
+    int *key; //array of keys
+    int t; // min degree
+    Node **Child; //array of child pointers
+    int n; // number of keys currently
+    //------------------------------------------------------------------------
+    //
     vector<int> keys;
-    vector< void*> children;
+    vector<void*> children;
     bool leaf;
     int fullSize;
     Node* previousLeaf;
@@ -30,6 +40,7 @@ struct Node
     /  \ \ \     4 children
       */
     
+    //Construction of the Node
     Node(int n)
     {
         fullSize=n;
@@ -109,6 +120,41 @@ struct Node
         }
     }
 
+    //
+    //
+    //--------------------------------------------------------------------------------
+    void traverse (); //traverse all nodes in the subtree
+
+    Node *search1(int k); 
+
+    int findKey(int k);
+
+    void insertNonFull(int k);
+    
+    void splitChild(int i, Node *y);
+  
+    void remove(int k);
+ 
+    void removeFromLeaf(int idx);
+ 
+    void removeFromNonLeaf(int idx);
+ 
+    int getPred(int idx);
+  
+    int getSucc(int idx);
+ 
+    void fill(int idx);
+
+    void borrowFromPrev(int idx);
+  
+    void borrowFromNext(int idx);
+  
+    void merge(int idx);
+  
+    friend class bTree;
+    //--------------------------------------------------------------------------------
+    //
+    //
     // To check that the leaf node pointers are right
     // only for dummy example in this file
     // void printAllChildren(){
@@ -150,7 +196,7 @@ class bTree
         int numOfNodes = 0;
     public:
         
-
+        // Construction
         bTree(int n)
         {   
             _root=NULL;
@@ -162,6 +208,23 @@ class bTree
         {
             return _root;
         }
+
+        //
+        //------------------------------------------------------------------------
+        void traverse()
+        {
+            if (_root != NULL) _root->traverse();
+        }
+
+        Node * search1(int k)
+        {
+            return (_root == NULL)? NULL : _root->search1(k);
+        }
+
+        void deleteFromBTree(int k);
+        //------------------------------------------------------------------------
+        //
+
 
         /*vector<void*> getbyIndex(int i){
             // to some search and return vector of pointer
@@ -237,6 +300,8 @@ class bTree
                 }
             }
        }
+
+
 
         Node * splitLeafNode(Node * oldNode, int key, void * value){
             //Create new leaf node 
@@ -626,6 +691,266 @@ class bTree
 
         }
 
+        //
+        //------------------------------------------------------------------------
+        Node(int t0, bool leaf0)
+        {       
+            t = t0;
+            leaf = leaf0;
+            key = new int[2*t-1];
+            Child = new Node *[2*t];
+            n = 0;
+        }
+  
+        int Node::findKey(int k)
+        {
+            int idx=0;
+            while (idx<n && keys[idx] < k)
+                ++idx;
+            return idx;
+        }
+
+        int Node::getPred(int idx)
+        {
+            BTreeNode *cur=C[idx];
+            while (!cur->leaf)
+                cur = cur->C[cur->n];
+            return cur->keys[cur->n-1];
+        }
+        
+        int Node::getSucc(int idx)
+        {
+            Node *cur = Child[idx+1];
+            while (!cur->leaf)
+                cur = cur->Child[0];
+            return cur->key[0];
+        }
+
+        void Node::fill(int idx)
+        {
+
+            if (idx!=0 && Child[idx-1]->n>=t)
+                borrowFromPrev(idx);
+
+            else if (idx!=n && Child[idx+1]->n>=t)
+                borrowFromNext(idx);
+
+            else
+            {
+                if (idx != n)
+                    merge(idx);
+                else
+                    merge(idx-1);
+            }
+            return;
+        }
+
+        void Node::removeFromLeaf (int idx)
+        {
+            for (int i=idx+1; i<n; ++i)
+                key[i-1] = key[i];
+            n--;
+        
+            return;
+        }
+
+        void Node::removeFromNonLeaf(int idx)
+        {
+        
+            int k = key[idx];
+        
+            if (Child[idx]->n >= t)
+            {
+                int pred = getPred(idx);
+                keys[idx] = pred;
+                Child[idx]->remove(pred);
+            }
+            else if  (Child[idx+1]->n >= t)
+            {
+                int succ = getSucc(idx);
+                keys[idx] = succ;
+                Child[idx+1]->remove(succ);
+            }
+            else
+            {
+                merge(idx);
+                Child[idx]->remove(k);
+            }
+            return;
+        }
+
+        void bTree::deleteFromBTree(int k)
+        {
+            int idx = findKey(k);
+        
+            if (idx < n && key[idx] == k)
+            {
+                if (leaf)
+                    removeFromLeaf(idx);
+                else
+                    removeFromNonLeaf(idx);
+            }
+            else
+            {
+                if (leaf)
+                {
+                    cout << "The key "<< k <<" does not exist in the tree\n";
+                    return;
+                }
+                bool flag = ( (idx==n)? true : false );
+    
+                if (Child[idx]->n < t)
+                    fill(idx);
+
+                if (flag && idx > n)
+                    Child[idx-1]->remove(k);
+                else
+                    Child[idx]->remove(k);
+            }
+            return;
+        }
+
+        void borrowFromPrev(int idx)
+        {
+        
+            Node *child=Child[idx];
+            Node *sibling=Child[idx-1];
+        
+        
+            for (int i=child->n-1; i>=0; --i)
+                child->keys[i+1] = child->keys[i];
+    
+            if (!child->leaf)
+            {
+                for(int i=child->n; i>=0; --i)
+                    child->Child[i+1] = child->Child[i];
+            }
+        
+            child->key[0] = key[idx-1];
+        
+            if(!child->leaf)
+                child->Child[0] = sibling->Child[sibling->n];
+        
+        
+            key[idx-1] = sibling->key[sibling->n-1];
+        
+            child->n += 1;
+            sibling->n -= 1;
+        
+            return;
+        }
+
+        void Node::borrowFromNext(int idx)
+        {
+        
+            Node *child=Child[idx];
+            Node *sibling=Child[idx+1];
+        
+            child->key[(child->n)] = key[idx];
+
+            if (!(child->leaf))
+                child->Child[(child->n)+1] = sibling->Child[0];
+
+            key[idx] = sibling->key[0];
+
+            for (int i=1; i<sibling->n; ++i)
+                sibling->key[i-1] = sibling->key[i];
+
+            if (!sibling->leaf)
+            {
+                for(int i=1; i<=sibling->n; ++i)
+                    sibling->Child[i-1] = sibling->Child[i];
+            }
+            child->n += 1;
+            sibling->n -= 1;
+            return;
+        }
+
+        // merge Child[idx] with Child[idx+1]
+        void Node::merge(int idx)
+        {
+            Node *child = Child[idx];
+            Node *sibling = Child[idx+1];
+        
+
+            child->key[t-1] = key[idx];
+
+            for (int i=0; i<sibling->n; ++i)
+                child->key[i+t] = sibling->key[i];
+        
+
+            if (!child->leaf)
+            {
+                for(int i=0; i<=sibling->n; ++i)
+                    child->Child[i+t] = sibling->Child[i];
+            }
+
+            for (int i=idx+1; i<n; ++i)
+                key[i-1] = key[i];
+
+            for (int i=idx+2; i<=n; ++i)
+                Child[i-1] = Child[i];
+                 child->n += sibling->n+1;
+            n--;
+
+            delete sibling;
+            return;
+        }
+
+        void Node::traverse()
+        {
+            int i;
+            for (i = 0; i < n; i++)
+            {
+
+                if (leaf == false)
+                    Child[i]->traverse();
+                cout << " " << keys[i];
+            }
+            if (leaf == false)
+                Child[i]->traverse();
+        }
+
+        Node * Node::search1(int k)
+        {
+            int i = 0;
+            while (i < n && k > keys[i])
+                i++;
+        
+            if (keys[i] == k)
+                return this;
+        
+            if (leaf == true)
+                return NULL;
+
+            return Child[i]->search1(k);
+        }
+  
+        void Node::remove(int k)
+        {
+            if (!_root)
+            {
+                cout << "The tree is empty\n";
+                return;
+            }
+            _root->remove(k);
+
+            if (_root->n==0)
+            {
+                Node *tmp = _root;
+                if (_root->leaf)
+                    _root = NULL;
+                else
+                    _root = _root->Child[0];
+        
+                delete tmp;
+            }
+            return;
+        }
+};
+        //------------------------------------------------------------------------
+        //
+        //
         // //deletion part starts here
         // void deleteFromTree(int val){
              
@@ -813,7 +1138,76 @@ class bTree
         //         }
         //     }
         // }   
-};
+
+
+
+
+//}
+
+// int main()
+// {
+//     BTree t(3); // A B-Tree with minimum degree 3
+  
+//     t.insert(1);
+//     t.insert(3);
+//     t.insert(7);
+//     t.insert(10);
+//     t.insert(11);
+//     t.insert(13);
+//     t.insert(14);
+//     t.insert(15);
+//     t.insert(18);
+//     t.insert(16);
+//     t.insert(19);
+//     t.insert(24);
+//     t.insert(25);
+//     t.insert(26);
+//     t.insert(21);
+//     t.insert(4);
+//     t.insert(5);
+//     t.insert(20);
+//     t.insert(22);
+//     t.insert(2);
+//     t.insert(17);
+//     t.insert(12);
+//     t.insert(6);
+  
+//     cout << "Traversal of tree constructed is\n";
+//     t.traverse();
+//     cout << endl;
+  
+//     t.remove(6);
+//         cout << "Traversal of tree after removing 6\n";
+//     t.traverse();
+//     cout << endl;
+  
+//     t.remove(13);
+//     cout << "Traversal of tree after removing 13\n";
+//     t.traverse();
+//     cout << endl;
+  
+//     t.remove(7);
+//     cout << "Traversal of tree after removing 7\n";
+//     t.traverse();
+//     cout << endl;
+  
+//     t.remove(4);
+//     cout << "Traversal of tree after removing 4\n";
+//     t.traverse();
+//     cout << endl;
+  
+//     t.remove(2);
+//     cout << "Traversal of tree after removing 2\n";
+//     t.traverse();
+//     cout << endl;
+  
+//     t.remove(16);
+//     cout << "Traversal of tree after removing 16\n";
+//     t.traverse();
+//     cout << endl;
+  
+//     return 0;
+// }
 
 
 
