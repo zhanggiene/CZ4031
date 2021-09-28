@@ -21,7 +21,6 @@
 
 
 
-/*
 int main(){
     int n = 7;
     // Database database("tsv_files/data.tsv", n);
@@ -77,7 +76,7 @@ int main(){
     
     return 0;
 }
-*/
+
 
 // int main() 
 // { 
