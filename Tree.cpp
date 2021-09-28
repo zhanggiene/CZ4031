@@ -414,6 +414,7 @@ class bTree
                 traversalNodes.push_back(current_node);
                 //if it is not a leaf
                 while(!current_node->leaf){
+                    current_node->printAllKeys();
                     int childrenIndex=upper_bound(current_node->keys.begin(),current_node->keys.end(),key)-current_node->keys.begin();
                     current_node=(Node* )current_node->children[childrenIndex];
                     traversalNodes.push_back(current_node);
@@ -746,11 +747,11 @@ class bTree
                             if (hasLeftSibling(parentNode, currentNode)){
                                 //if currentNode = 1, it means that the currentNode did not have a right sibling
                                 leftSibling = mergeWithLeftSibling(parentNode, currentNode);                                
-                                mergeCounter++;
+                                mergeCounter+=1;
                             } 
                             else if (hasRightSibling(parentNode, currentNode)){
                                 rightSibling = mergeWithRightSibling(parentNode,currentNode);
-                                mergeCounter++;
+                                mergeCounter+=1;
                             }
                             else {
                                 cout << "Error: Node should have at least 1 sibling"<<endl;
@@ -790,6 +791,7 @@ class bTree
 
             } else {
                 cout << "Key is not found in the tree!"<<endl;
+                return mergeCounter;
             }
             
 
