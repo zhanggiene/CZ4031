@@ -162,6 +162,17 @@ class Database {
             cout<<"the average of “averageRating’s” of the records: is "<<SUM/allRatings.size();
         }
 
+        void experiment5(){
+            int totalNumKeysToDelete = btree.getNumberOfKeysToDelete(1000);
+            int merged_node_count = 0;
+            for (int i=0;i<totalNumKeysToDelete;i++){
+                cout << "Number of keys to delete:" <<btree.getNumberOfKeysToDelete(1000)<<endl;
+                merged_node_count += btree.deleteOneKey(1000);
+            }
+            cout << "Number of times that a node is deleted: "<<merged_node_count<<endl;
+            cout<<"done";
+        }
+
 
         void printBlocks(){
             this->disk.printAllRecord();

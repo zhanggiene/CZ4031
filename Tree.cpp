@@ -407,6 +407,21 @@ class bTree
                 return traversalNodes;
         }
 
+        vector<Node*> traversalPathOfDeletion(int key){
+            //traverse the tree downwards until we find the leaf node
+                vector <Node*> traversalNodes;
+                Node * current_node = _root;
+                traversalNodes.push_back(current_node);
+                //if it is not a leaf
+                while(!current_node->leaf){
+                    int childrenIndex=upper_bound(current_node->keys.begin(),current_node->keys.end(),key)-current_node->keys.begin();
+                    current_node=(Node* )current_node->children[childrenIndex];
+                    traversalNodes.push_back(current_node);
+                }
+
+                return traversalNodes;
+        }
+
         //bfs print from node
         void printNodeTree(){
             if (_root == NULL){
@@ -661,11 +676,12 @@ class bTree
             return result;
         }
 
-        void deleteOneKey(int key){
+        int deleteOneKey(int key){
+            int mergeCounter = 0;
 
             cout << "deleted key:"<<key<<endl;
             //traverse all the way to the bottom of the tree where we delete the key
-            vector<Node *> traversedPath = traversalPathOfInsertion(key);
+            vector<Node *> traversedPath = traversalPathOfDeletion(key);
 
             //get the current leaf node we are deleting from
             Node * currentNode = traversedPath.back();
@@ -685,7 +701,7 @@ class bTree
                 
                 //if the current node is a root, deletion is complete
                 if (currentNode == _root){
-                    return;
+                    return mergeCounter;
                 } 
                 
                 //if the current node is not the root, 
@@ -730,11 +746,11 @@ class bTree
                             if (hasLeftSibling(parentNode, currentNode)){
                                 //if currentNode = 1, it means that the currentNode did not have a right sibling
                                 leftSibling = mergeWithLeftSibling(parentNode, currentNode);                                
+                                mergeCounter++;
                             } 
                             else if (hasRightSibling(parentNode, currentNode)){
-                                
                                 rightSibling = mergeWithRightSibling(parentNode,currentNode);
-                                
+                                mergeCounter++;
                             }
                             else {
                                 cout << "Error: Node should have at least 1 sibling"<<endl;
@@ -753,12 +769,12 @@ class bTree
                         } else {
                             cout << "Error: For root node to become too small, a merging at the nodes before the root should have occured!"<<endl;
                         }
-                        return;
+                        return mergeCounter;
                     }
 
                     //if the parentNode is already root, stop repairing
                     if (parentNode==_root){
-                        return;
+                        return mergeCounter;
                     }  
 
                     //Go up the tree
@@ -998,7 +1014,7 @@ class bTree
                 // |1|2|4|   |5|6|             |7|8|9| |10|11|12|
                 
                 if (hasRightSibl){
-                    cout << "-hasRightSibl";
+                    cout << "-hasRightSibl"<<endl;
                     Node * rightChild = (Node *)parentNode->children[indexOfCurentNode];
                     fixIndexes(parentNode,rightChild);
                     return leftSibling; //return the leftsibling for the deletion from root case
@@ -1110,6 +1126,46 @@ class bTree
                 return currentNode;
             
             }
+
+        }
+
+        int getNumberOfKeysToDelete(int numVotes)
+        {
+            // use of binary search
+            // print all the content inside the data blocks, even if the numBVotes is not equal
+            // return vector of directory pointer.
+            Node * current_node = _root;
+            int counter =0;
+            while(!current_node->leaf)
+            {
+                int childrenIndex=upper_bound(current_node->keys.begin(),current_node->keys.end(),numVotes)-current_node->keys.begin();
+                current_node=(Node* )current_node->children[childrenIndex];
+            }
+
+
+            // now reach leaf node
+            // keep traversing to the left 23 33 33 33
+            //current_node->printAllKeys();
+            
+            while(current_node!=NULL && current_node->keys[0]==numVotes)
+            {
+                current_node=current_node->previousLeaf;
+
+            } 
+
+            while(current_node!=NULL && current_node->keys[0]<=numVotes)
+            {
+
+                for (int i=0;i<current_node->getNumKeys();i++){
+                if (current_node->keys[i]==numVotes){  
+                counter+=1;
+                }
+        }
+            current_node=current_node->nextLeaf;
+            }
+
+            return counter;
+
 
         }
 };
