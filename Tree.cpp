@@ -1116,125 +1116,122 @@ class bTree
 
 
 
+/*
+int main()
+{
+    pair<int,int> a= make_pair(1, 1);
+    pair<int,int> b= make_pair(1, 2);
+    pair<int,int> c= make_pair(1, 3);
+    pair<int,int> d= make_pair(1, 4);
+    bTree tree=bTree(3);
 
-// int main()
-// {
-//     pair<int,int> a= make_pair(1, 1);
-//     pair<int,int> b= make_pair(1, 2);
-//     pair<int,int> c= make_pair(1, 3);
-//     pair<int,int> d= make_pair(1, 4);
-//     bTree tree=bTree(3);
+    tree.insertToBTree(1,&a);
+    tree.printNodeTree();
+    tree.printLastRowReverse();
+    cout<<endl;
+    tree.insertToBTree(4,&a);
+    tree.printNodeTree();
+    tree.printLastRowReverse();
+    cout<<endl;
 
-//     tree.insertToBTree(1,&a);
-//     tree.printNodeTree();
-//     tree.printLastRowReverse();
-//     cout<<endl;
-//     tree.insertToBTree(4,&a);
-//     tree.printNodeTree();
-//     tree.printLastRowReverse();
-//     cout<<endl;
-//     tree.insertToBTree(7,&b);
-//     tree.printNodeTree();
-//     tree.printLastRowReverse();
-//     cout<<endl;
+    tree.insertToBTree(7,&b);
+    tree.printNodeTree();
+    tree.printLastRowReverse();
+    cout<<endl;
+    tree.insertToBTree(10,&b);
+    tree.printNodeTree();
+    tree.printLastRowReverse();
+    cout<<endl;
 
-//     tree.insertToBTree(10,&b);
-//     tree.printNodeTree();
-//     tree.printLastRowReverse();
-//     cout<<endl;
-//     tree.insertToBTree(17,&b);
-//     tree.printNodeTree();
-//     tree.printLastRowReverse();
-//     cout<<endl;
+    tree.insertToBTree(20,&b);
+    tree.printNodeTree();
+    tree.printLastRowReverse();
+    cout<<endl;
+    tree.insertToBTree(21,&b);
+    tree.printNodeTree();
+    tree.printLastRowReverse();
+    cout<<endl;
+    tree.insertToBTree(25,&b);
+    tree.printNodeTree();
+    tree.printLastRowReverse();
+    cout<<endl;
+    tree.insertToBTree(31,&c);
+    tree.printNodeTree();
+    tree.printLastRowReverse();
+    cout<<endl;
 
-//     tree.insertToBTree(19,&b);
-//     tree.printNodeTree();
-//     tree.printLastRowReverse();
-//     cout<<endl;
-//     tree.insertToBTree(20,&b);
-//     tree.printNodeTree();
-//     tree.printLastRowReverse();
-//     cout<<endl;
-//     tree.insertToBTree(21,&b);
-//     tree.printNodeTree();
-//     tree.printLastRowReverse();
-//     cout<<endl;
-//     tree.insertToBTree(25,&c);
-//     tree.printNodeTree();
-//     tree.printLastRowReverse();
-//     cout<<endl;
 
-//     tree.insertToBTree(28,&c);
-//     tree.printNodeTree();
-//     tree.printLastRowReverse();
-//     cout<<endl;
+    cout<<"deletion test now";
 
-//     tree.insertToBTree(31,&c);
-//     tree.printNodeTree();
-//     tree.printLastRowReverse();
-//     cout<<endl;
+    tree.deleteOneKey(4);
+    tree.printNodeTree();
+    tree.printLastRowReverse();
+    cout<<endl;
 
-//     tree.insertToBTree(42,&c);
-//     tree.printNodeTree();
-//     tree.printLastRowReverse();
-//     cout<<endl;
+        tree.deleteOneKey(10);
+    tree.printNodeTree();
+    tree.printLastRowReverse();
+    cout<<endl;
 
+    tree.deleteOneKey(20);
+    tree.printNodeTree();
+    tree.printLastRowReverse();
+    cout<<endl;
+
+
+
+    // tree.insertToBTree(14,&c);
+    // tree.printNodeTree();
+    // tree.printLastRowReverse();
+    // cout<<endl;
+
+    // tree.insertToBTree(15,&c);
+    // tree.printNodeTree();
+    // tree.printLastRowReverse();
+    // cout<<endl;
+
+    // tree.insertToBTree(16,&c);
+    // tree.printNodeTree();
+    // tree.printLastRowReverse();
+    // cout<<endl;
     
-
-//     tree.insertToBTree(14,&c);
-//     tree.printNodeTree();
-//     tree.printLastRowReverse();
-//     cout<<endl;
-
-//     tree.insertToBTree(15,&c);
-//     tree.printNodeTree();
-//     tree.printLastRowReverse();
-//     cout<<endl;
-
-//     tree.insertToBTree(16,&c);
-//     tree.printNodeTree();
-//     tree.printLastRowReverse();
-//     cout<<endl;
+    // tree.insertToBTree(4,&c);
+    // tree.printNodeTree();
+    // tree.printLastRowReverse();
+    // cout<<endl;
     
-//     tree.insertToBTree(4,&c);
-//     tree.printNodeTree();
-//     tree.printLastRowReverse();
-//     cout<<endl;
-    
-//     tree.insertToBTree(4,&c);
-//     tree.printNodeTree();
-//     tree.printLastRowReverse();
-//     cout<<endl;
+    // tree.insertToBTree(4,&c);
+    // tree.printNodeTree();
+    // tree.printLastRowReverse();
+    // cout<<endl;
 
-//     tree.insertToBTree(4,&c);
-//     tree.printNodeTree();
-//     tree.printLastRowReverse();
-//     cout<<endl;
+    // tree.insertToBTree(4,&c);
+    // tree.printNodeTree();
+    // tree.printLastRowReverse();
+    // cout<<endl;
 
-//     tree.insertToBTree(4,&c);
-//     tree.printNodeTree();
-//     tree.printLastRowReverse();
-//     cout<<endl;
-    
+    // tree.insertToBTree(4,&c);
+    // tree.printNodeTree();
+    // tree.printLastRowReverse();
+    // cout<<endl;
     
     
     
-//     tree.deleteOneKey(5);
-//     tree.printNodeTree();
-//     tree.printLastRowReverse();
-//     cout<<endl;
+    
+    // tree.deleteOneKey(5);
+    // tree.printNodeTree();
+    // tree.printLastRowReverse();
+    // cout<<endl;
 
-//     tree.deleteOneKey(8);
-//     tree.printNodeTree();
-//     tree.printLastRowReverse();
-//     cout<<endl;
+    // tree.deleteOneKey(8);
+    // tree.printNodeTree();
+    // tree.printLastRowReverse();
+    // cout<<endl;
 
-//     tree.deleteOneKey(10);
-//     tree.printNodeTree();
-//     tree.printLastRowReverse();
-//     cout<<endl;
-//     return 0;
-// }
+    // tree.deleteOneKey(10);
+    // tree.printNodeTree();
+    // tree.printLastRowReverse();
+    // cout<<endl;
 
     // tree.deleteOneKey(5);
     // tree.printNodeTree();
@@ -1257,13 +1254,18 @@ class bTree
     //  tree.deleteOneKey(6);
     // tree.printNodeTree();
     // cout<<endl;
+return 0;
+}
+
+
+*/
 
 
 
 
 
 
-    //tree.printLastRowPointers();
+    // tree.printLastRowPointers();
   
 
 

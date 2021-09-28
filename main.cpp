@@ -20,6 +20,9 @@
 // b+ tree: 953number of records is953the average of “averageRating’s” of the records: is 6.72844
 
 
+// experient 5 
+// 42 by b+ tree
+
 
 int main(){
     int n = 7;
@@ -34,7 +37,9 @@ int main(){
     cout << "Experiment 2: Build a B+ tree on the attribute \"numVotes\"\n";
     cout << "Experiment 3: Retrieve movies with attribute \"numVotes\" equal to 500\n";
     cout << "Experiment 4: Retrieve movies with attribute \"numVotes\" from 30,000 to 40,000, both inclusively\n";
+    cout << "Experiment 5:";
     cout << "Choice: ";
+
     cin >> choice;
 
     while (cin.fail() || choice < 1 || choice > 6 ) {
@@ -68,6 +73,11 @@ int main(){
             cout<<"Experiment 4: Retrieve movies with attribute \"numVotes\" from 30,000 to 40,000, both inclusively\n";
             database.addToDiskAndBplus();
             database.experiment4();
+            break;
+        case 5:
+            cout<<"Experiment 5: \n";
+            database.addToDiskAndBplus();
+            database.experiment5();
             break;
         default:
             cout << "Not coded yet";
