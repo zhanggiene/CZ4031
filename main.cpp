@@ -32,7 +32,7 @@ int main(){
     Database database("tsv_files/data.tsv",7);
 
     int choice;
-    cout << "Which experiment result to view? (Type 1-7)\n";
+    cout << "Which experiment resul5t to view? (Type 1-7)\n";
     cout << "Experiment 1: Store data in disk \n";
     cout << "Experiment 2: Build a B+ tree on the attribute \"numVotes\"\n";
     cout << "Experiment 3: Retrieve movies with attribute \"numVotes\" equal to 500\n";

@@ -165,9 +165,12 @@ class Database {
         void experiment5(){
             int totalNumKeysToDelete = btree.getNumberOfKeysToDelete(1000);
             int merged_node_count = 0;
+            int mergeCount=0;
             for (int i=0;i<totalNumKeysToDelete;i++){
                 cout << "Number of keys to delete:" <<btree.getNumberOfKeysToDelete(1000)<<endl;
-                merged_node_count += btree.deleteOneKey(1000);
+                mergeCount = btree.deleteOneKey(1000);
+                cout  << "mergeCount:"<<mergeCount<<endl;
+                merged_node_count= merged_node_count +mergeCount;
             }
             cout << "Number of times that a node is deleted: "<<merged_node_count<<endl;
             cout<<"done";
