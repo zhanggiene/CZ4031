@@ -16,6 +16,9 @@
         "ostream": "cpp",
         "cmath": "cpp",
         "unordered_map": "cpp",
-        "xhash": "cpp"
+        "xhash": "cpp",
+        "algorithm": "cpp",
+        "xiosbase": "cpp",
+        "xlocale": "cpp"
     }
 }

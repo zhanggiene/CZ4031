@@ -53,6 +53,24 @@ struct Node
         return floor((this->fullSize+1) / 2);
     }
 
+    //take note for root, it is 1
+    int getMinNumValues(){
+        //if this is a leaf
+        if (leaf){
+            return floor((this->fullSize+1)/2);
+        } else { //if this is non leaf
+            return floor((this->fullSize)/2)+1;
+        }
+    }
+
+    bool hasMininumValues(){
+        return this->getNumValues()>=this->getMinNumValues();
+    }
+
+    bool hasExtraValues(){
+        return this->getNumValues()>this->getMinNumValues();
+    }
+
     void addToKeys(int key, int index){
         keys.insert(keys.begin() + index , key);
     }
@@ -68,6 +86,11 @@ struct Node
     void eraseKey(int idx) {
         keys.erase(keys.begin()+idx);
     }
+
+    void eraseValue(int idx) {
+        children.erase(children.begin()+idx);
+    }
+
 
     void eraseKeys(int startIndex, int endIndex){
         keys.erase(keys.begin()+startIndex, keys.begin()+endIndex);
@@ -108,18 +131,6 @@ struct Node
             return (Node *) nextLeaf;
         }
     }
-
-    // To check that the leaf node pointers are right
-    // only for dummy example in this file
-    // void printAllChildren(){
-    //     cout << "|";
-    //     for (int i=0;i<getNumKeys();i++){
-    //         int * pointerToRecord = (int *)children[i];
-    //         cout << *pointerToRecord;
-    //         cout << "|";
-    //     }
-    //     cout << "\t";
-    // }
 
     //For actual data 
     void printAllChildren(){
@@ -622,351 +633,727 @@ class bTree
 
             cout<<"Total number of data nodes: "<<dataNodeNumber<<endl;
             return result;
+        }
 
+        void deleteOneKey(int key){
+
+            cout << "deleted key:"<<key<<endl;
+            //traverse all the way to the bottom of the tree where we delete the key
+            vector<Node *> traversedPath = traversalPathOfInsertion(key);
+
+            //get the current leaf node we are deleting from
+            Node * currentNode = traversedPath.back();
+            traversedPath.pop_back();
+
+            //get the parent of the current leaf node we are deleting from
+            Node * parentNode = traversedPath.back();
+            traversedPath.pop_back();
+
+            //find index to delete in leaf node
+            int indexToDelete = getIndexOfKeyInNode(currentNode, key);
+
+            //if the key is found in the leaf node, delete it
+            if (indexToDelete!=-1){
+                currentNode->eraseKey(indexToDelete);
+                currentNode->eraseValue(indexToDelete);
+                
+                //if the current node is a root, deletion is complete
+                if (currentNode == _root){
+                    return;
+                } 
+                
+                //if the current node is not the root, 
+                //continue on to check if it is 1 of the 3 cases iteratively (go up the tree)
+                while (true){
+                    //for the case we just merged the children of the root and the root is now too small
+                    Node * leftSibling = NULL; 
+                    Node * rightSibling = NULL; 
+                    
+                    // printNodeTree();
+                    // cout << "parentnumvalues" << parentNode->getNumValues()<<endl;
+                    // parentNode->printAllKeys();
+                    // cout <<endl;
+                    // cout << "currentnumvalues" << currentNode->getNumValues()<<endl;
+                    // currentNode->printAllKeys();
+                    // cout <<endl;
+
+                    //Case 1: The current node is not too small (less than the mininum number of values)
+                    if (currentNode->hasMininumValues()){ 
+                        //no need to borrow or merge (just fix the indexes)  
+                        fixIndexes(parentNode, currentNode);
+                    } 
+                    //Case 2&3:If current Node is too small move on to case 2 & 3
+                    else {
+                        
+                        //Case 2: Too small but has siblings that can lend 
+                        //Case 2a: Left Sibling has extra
+                        if (leftSiblingHasExtraValues(parentNode, currentNode)){
+                            borrowFromLeftSibling(parentNode, currentNode);
+                            fixIndexes(parentNode, currentNode);
+                        } 
+                        //Case 2b: Right Sibling has extra
+                        else if (rightSiblingHasExtraValues(parentNode, currentNode)){
+                            
+                            borrowFromRightSibling(parentNode, currentNode);
+                            fixIndexes(parentNode, currentNode);
+                        }
+                        //Case 3: Merge the siblings
+                        else{
+                            
+                            //Case 3a: It has a left sibling, merge with left sibling
+                            if (hasLeftSibling(parentNode, currentNode)){
+                                //if currentNode = 1, it means that the currentNode did not have a right sibling
+                                leftSibling = mergeWithLeftSibling(parentNode, currentNode);                                
+                            } 
+                            else if (hasRightSibling(parentNode, currentNode)){
+                                
+                                rightSibling = mergeWithRightSibling(parentNode,currentNode);
+                                
+                            }
+                            else {
+                                cout << "Error: Node should have at least 1 sibling"<<endl;
+                            }
+                        } 
+                        
+                    }
+                    
+                    //If we just merged the children of the root and the root is now too small
+                    if (parentNode == _root && parentNode->getNumValues()<2){
+                        if (rightSibling!=NULL){
+                            _root = rightSibling;
+                        } 
+                        else if (leftSibling!=NULL){
+                            _root = leftSibling;
+                        } else {
+                            cout << "Error: For root node to become too small, a merging at the nodes before the root should have occured!"<<endl;
+                        }
+                        return;
+                    }
+
+                    //if the parentNode is already root, stop repairing
+                    if (parentNode==_root){
+                        return;
+                    }  
+
+                    //Go up the tree
+                    //Next current node
+                    currentNode = parentNode;
+                    //Next parent node to fix
+                    parentNode = traversedPath.back();
+                    traversedPath.pop_back();
+
+                    // cout << "-----------------------------------------"<<endl;
+                }
+
+
+            } else {
+                cout << "Key is not found in the tree!"<<endl;
+            }
+            
 
         }
 
-        // //deletion part starts here
-        // void deleteFromTree(int val){
-             
-        //     doDelete(val, getRoot());
+        int getIndexOfKeyInNode(Node * currentNode, int key){
+            //iterate through all keys and output the index of key
+            for (int i = 0;i<currentNode->getNumKeys();i++){
+                if (currentNode->keys[i]==key){
+                    return i;
+                }
+            }
+            return -1; //This means we didn't find the key in the node
+        }
+
+        int getIndexOfValueInNode(Node * parentNode, Node * currentNode){
+            //iterate through all children and output the index of the child
+            for (int i = 0;i<parentNode->getNumValues();i++){
+                if (parentNode->children[i]==currentNode){
+                    return i;
+                }
+            }
+            return -1; //This means we didn't find the child in the node
+        }
+
+        int smallestLeafKeyOfRightSubtree(Node * currentNode){
+            while (!currentNode->leaf){
+                currentNode = (Node *)currentNode->children[0];
+            }
+            return currentNode->keys[0];
+        }
+
+        void fixIndexes(Node * parentNode, Node * currentNode){
+            //Fixes the indexes as we go up the tree
+            //Get index of key before the pointer pointing to this node
+            //eg. |3 | 4| (parent node) 
+            //       \
+            //        |3|3| (current node) (leaf)
+            //(return 0) in this case since 3 is the first key
+            int indexOfCurrentNodeInParent = getIndexOfValueInNode(parentNode, currentNode);
+            if (indexOfCurrentNodeInParent==-1){
+                cout << "Error: Current node cannot be found in parent!" <<endl;
+                return;
+            }
+            //In this case we don't need to fix the key of the parent
+            //eg.      |3 | 4| (parent node) 
+            //         /
+            //    |1|2| (current node) (leaf)
+            if (indexOfCurrentNodeInParent==0){
+            } 
+            //In this case we need to fix the key of the parent
+            //eg. |4 | 7| (parent node) (key at index 0)
+            //       \
+            //        |5|6| (current node) (leaf) (child at index 1)
+            else { 
+                //in this example this would be: parentNode->keys[0] = 5;
+                parentNode->keys[indexOfCurrentNodeInParent-1] = smallestLeafKeyOfRightSubtree(currentNode);
+            }  
+        }
+
+        bool leftSiblingHasExtraValues(Node * parentNode, Node * currentNode){
+            int indexOfCurentNode = getIndexOfValueInNode(parentNode, currentNode);
             
-        //     Node* treeRoot = getRoot();
-        //     if (treeRoot->keys.size() == 0){
-        //         //tree is empty
-        //     }
+            //if it is the left most child, it cannot borrow from the left sibling
+            if (indexOfCurentNode==0){
+                return false;
+            } 
+            //if there is a left sibling and it has extra values, we can borrow
+            else if (((Node *)parentNode->children[indexOfCurentNode-1])->hasExtraValues()){
+                return true;
+            }
+            //if there is a left sibling but no extra values, we cannot borrow
+            else {
+                return false;
+            }
+        }
 
-        // }
+        void borrowFromLeftSibling(Node * parentNode, Node * currentNode){
+            cout << "borrowFromLeftSibling";
+            int indexOfCurentNode = getIndexOfValueInNode(parentNode, currentNode);
+            int indexOfLeftSibling = indexOfCurentNode-1;
+            Node * leftSibling = (Node *)parentNode->children[indexOfLeftSibling];
+            //if it is the leaf node, borrow in this way
+            if (currentNode->leaf){
+                cout << "-leaf"<<endl;
+                //transfer the last key and value of the left sibling to the right sibling
+                // |1 2 3| |4| -> |1 2| |3 4|
+                int lastKey = leftSibling->keys.back();
+                void * lastValue = leftSibling->children.back();
+                leftSibling->keys.pop_back();
+                leftSibling->children.pop_back();
 
-        // void doDelete(int val, Node* tree) {
-        //     int numOfKeys = tree->getNumKeys();
-        //     if (tree != NULL) {
-        //         int i = 0;
-        //         for (i; i < numOfKeys && tree->keys[i] < val; i++);
-        //         if (i == numOfKeys) {
-        //             if (!tree->leaf) {
-        //                 doDelete(val, (Node *)tree->children[numOfKeys]);
-        //             } else {
-        //                 //delete the last key
+                currentNode->keys.insert(currentNode->keys.begin(), lastKey);
+                currentNode->children.insert(currentNode->children.begin(), lastValue);
+            } 
+            //if it is the non leaf node, borrow in this way
+            else {
+                cout << "-nonleaf"<<endl;
+                //transfer the last value of the left sibling to the right sibling
+                // |1 2| |4| -> |1| |otherKey|
+                void * lastValue = leftSibling->children.back();
+                leftSibling->keys.pop_back();
+                leftSibling->children.pop_back();
 
-        //             }
-        //         }
-        //         else if (!tree->leaf && tree->keys[i] == val){
-        //             doDelete(val, (Node *)tree->children[i+1]);
-        //         }
-        //         else if (!tree->leaf) {
-        //             doDelete(val, (Node *)tree->children[i]);
-        //         }
-        //         else if (tree->leaf && tree->keys[i] == val){
-        //             int eraseKey(i);
-        //             numOfKeys--;
-        //             if (tree->nextLeaf != NULL) {
-        //                 //
-        //             }
+                currentNode->children.insert(currentNode->children.begin(), lastValue);
+            }
+        }
 
-        //             Node * parentNode = getParent(tree);
-        //             // if we remove the smallest element in a leaf and the leaf is now empty
-        //             // go up parent node, and fix index keys
-        //             if (i == 0 && parentNode != NULL) {
-        //                 int nextSmallest;
-        //                 int parentIdx = 0;
-        //                 for (parentIdx; parentNode->children[parentIdx] != tree; parentIdx++);
-        //                 if (numOfKeys == 0) {
-        //                     if (parentIdx == parentNode->getNumKeys()){
-        //                         //is this case possible?
-        //                     }
-        //                     else {
-        //                         nextSmallest = (int) parentNode->keys[parentIdx+1];
-        //                     }
-        //                 }
-        //                 else {
-        //                     nextSmallest = tree->keys[0];
-        //                 }
-        //                 while (parentNode != NULL) {
-        //                     if (parentNode > 0 && parentNode->keys[parentIdx - 1] == val){
-        //                         parentNode->keys[parentIdx - 1] = nextSmallest;
-        //                     }
-        //                     Node * grandParent = parentNode;
-        //                 }
-        //             }
-        //             repairAfterDeletion(tree);
-        //         }
-        //         else {
-        //             //is there more conditions?
-        //         }
-        //     } 
-        // }
+        bool rightSiblingHasExtraValues(Node * parentNode, Node * currentNode){
+            int indexOfCurentNode = getIndexOfValueInNode(parentNode, currentNode);
+            //if it is the right most child, it cannot borrow from the right sibling
+            if (indexOfCurentNode==parentNode->getNumValues()-1){
+                return false;
+            } 
+            //if there is a right sibling and it has extra values, we can borrow
+            else if (((Node *)parentNode->children[indexOfCurentNode+1])->hasExtraValues()){
+                return true;
+            }
+            //if there is a right sibling but no extra values, we cannot borrow
+            else {
+                return false;
+            }
+        }
 
-        // Node * mergeRight(Node * tree) {
-        //     Node * parentNode = getParent(tree);
-        //     int parentIdx = 0;
-        //     for (parentIdx = 0; parentNode->children[parentIdx] != tree; parentIdx++);
-        //     Node * rightSib = (Node *)parentNode->children[parentIdx+1];
+        void borrowFromRightSibling(Node * parentNode, Node * currentNode){
+            cout << "borrowFromRightSibling";
+            int indexOfCurentNode = getIndexOfValueInNode(parentNode, currentNode);
+            int indexOfRightSibling = indexOfCurentNode+1;
+            Node * rightSibling = (Node *)parentNode->children[indexOfRightSibling];
+            //if it is the leaf node, borrow in this way
+            if (currentNode->leaf){
+                cout << "-leaf"<<endl;
+                //transfer the first key and value of the right sibling to the left sibling
+                // |1| |2 3 4| -> |1 2| |3 4|
+                int firstKey = rightSibling->keys[0];
+                void * firstValue = rightSibling->children[0];
+                rightSibling->eraseKey(0);
+                rightSibling->eraseValue(0);
 
-        //     if (!tree->leaf) {
-        //         tree->keys[tree->getNumKeys()] = parentNode->keys[parentIdx];
-        //     }
+                currentNode->keys.push_back(firstKey);
+                currentNode->children.push_back(firstValue);
 
-        //     int fromParentIdx = tree->getNumKeys();
+                //we also have to fix the index of this rightsibling
+                fixIndexes(parentNode, rightSibling);
+            }
+            //if this is not a leaf, borrow in this way 
+            //eg.                      |7|14|
+            //       |5|               |10|12|              |16|
+            // |1|2|6|         |7|8|9| |10|11| |12|13| |14|15| |16|17|
+            else{
+                cout << "-nonleaf"<<endl;
+                //transfer the first value of the right sibling to the currentNode
+                // |5| |10 12| -> |5| |12|
+                void * rightValue = rightSibling->children[0];
+                rightSibling->eraseValue(0);
+                rightSibling->eraseKey(0);
+                currentNode->children.push_back(rightValue);
+                //fix the tree
+                //|5| |12| --> |7| |12|
+                fixIndexes(currentNode, (Node *)currentNode->children[currentNode->getNumValues()-1]);
+                //Parent's key needs to be changed
+                //eg.       parent --> |7|14|
+                // current--> |7|              |12|           |16|
+                // |1|2|6|       |7|8|9| |10|11| |12|13| |14|15| |16|17| 
+                fixIndexes(parentNode, rightSibling);
+            }
+        }
 
-        //     for (int i = 0; i < rightSib->getNumKeys(); i++){
-        //         int insertIdx = tree->getNumKeys() + 1 + i;
-        //         if (tree->leaf){
-        //             insertIdx -= 1;
-        //         }
-        //         tree->keys[insertIdx] = rightSib->keys[i];
-        //     }
-        //     if (!tree->leaf) {
-        //         for (int i = 0; i <= rightSib->getNumKeys(); i++){
-        //             tree->children[tree->getNumKeys() + 1 + i] = rightSib->children[i];
-        //             //do we need to set parent mannually?
-        //         }
-        //     }
-        //     else {
-        //         tree->nextLeaf = rightSib->nextLeaf;
-        //     }
-        //     for (int i = parentIdx + 1; i < parentNode->getNumKeys(); i++) {
-        //         parentNode->children[i] = parentNode->children[i+1];
-        //         parentNode->keys[i-1] = parentNode->keys[i];
-        //         parentNode->eraseKey(i);
-        //     }
-        //     return tree;
-        // }
+        bool hasLeftSibling(Node * parentNode, Node * currentNode){
+            int indexOfCurrentNode = getIndexOfValueInNode(parentNode, currentNode);
+            //if it is not the left most child, it has a left sibling
+            if (indexOfCurrentNode>0){
+                return true;
+            }
+            return false;
+        }
 
-        // void borrowFromRight(Node * tree, int parentIdx) {
-        //     Node * parentNode = getParent(tree);
-        //     Node * rightSib = (Node *)parentNode->children[parentIdx + 1];
+        bool hasRightSibling(Node * parentNode, Node * currentNode){
+            int indexOfCurrentNode = getIndexOfValueInNode(parentNode, currentNode);
+            //if it is not the right most child, it has a right sibling
+            if (indexOfCurrentNode<parentNode->getNumValues()-1){
+                return true;
+            }
+            return false;
+        }
 
-        //     if (tree->leaf){
-        //         tree->keys[tree->getNumKeys()-1] = rightSib->keys[0];
-        //         parentNode->keys[parentIdx] = rightSib->keys[1];
-        //     }
-        //     else {
-        //         tree->keys[tree->getNumKeys()-1] = parentNode->keys[parentIdx];
-        //         parentNode->keys[parentIdx] = rightSib->keys[0];
-
-        //         tree->children[tree->getNumKeys()] = rightSib->children[0];
-
-        //         for (int i = 1; i < rightSib->getNumKeys(); i++){
-        //             rightSib->children[i-1] = rightSib->children[i];
-        //         }
-        //     }
-        //     for (int i = 1; i < rightSib->getNumKeys(); i++){
-        //         rightSib->keys[i-1] = rightSib->keys[i];
-        //     }
-        // }
-
-        // void borrowFromLeft(Node * tree, int parentIdx) {
-        //     Node * parentNode = getParent(tree);
-
-        //     for (int i = tree->getNumKeys() - 1; i > 0; i--){
-        //         tree->keys[i] = tree->keys[i-1];
-        //     }
-
-        //     Node * leftSib = (Node *)parentNode->children[parentIdx - 1];
-
-        //     if (tree->leaf){
-        //         tree->keys[0] = leftSib->keys[leftSib->getNumKeys() - 1];
-        //         parentNode->keys[parentIdx - 1] = leftSib->keys[leftSib->getNumKeys() - 1];
-        //     }
-        //     else {
-        //         tree->keys[0] = parentNode->keys[parentIdx - 1];
-        //         parentNode->keys[parentIdx - 1] = leftSib->keys[leftSib->getNumKeys() - 1];
-        //         tree->children[parentIdx - 1] = (Node *)leftSib->keys[leftSib->getNumKeys() - 1];
-
-        //         for (int i = 1; i < tree->getNumKeys(); i--){
-        //             tree->children[i] = tree->children[i-1];
-        //         }
-        //         tree->children[0] = leftSib->children[leftSib->getNumKeys()];
+        //give back the left sibling (for case when parent is root that's small)
+        Node * mergeWithLeftSibling(Node * parentNode, Node * currentNode){
+            cout << "mergeWithLeftSibling";
+            int indexOfCurentNode = getIndexOfValueInNode(parentNode, currentNode);
+            int indexOfLeftSibling = indexOfCurentNode-1;
+            Node * leftSibling = (Node *)parentNode->children[indexOfLeftSibling];
+            
+            if (currentNode->leaf){
+                cout << "-leaf";
+                bool hasRightSibl =hasRightSibling(parentNode, currentNode);
+                //add all from currentNode to left sibling
+                leftSibling->keys.insert(leftSibling->keys.end(), currentNode->keys.begin(), currentNode->keys.end());
+                leftSibling->children.insert(leftSibling->children.end(), currentNode->children.begin(), currentNode->children.end());
+                //if currentNode is a leaf, we need to connect left sibling with currentNode's previous right sibling
+                // eg |1 2|<->||<->|5 6|  --> |1 2|<->|5 6|
+                //|1 2|->|5 6|
+                Node * nextLeafOfCurrentNode =currentNode->nextLeaf;
+                leftSibling->nextLeaf = nextLeafOfCurrentNode;
+                //if it is a terminal leaf node, nextLeafOfCurrent would be NULL
+                if (!currentNode->isTerminalLeafNode()){
+                    //|1 2|<-|5 6|
+                    nextLeafOfCurrentNode->previousLeaf = leftSibling;
+                }
+                //remove the current node itself
+                parentNode->eraseValue(indexOfCurentNode);
+                free(currentNode);
+                //remove extra keys
+                //In this case, (num values of parent -1) = 2-1=1
+                //eg.                 |7|
+                //        |3|5| <--remove this key   |10|
+                // |1|2|4|   |5|6|             |7|8|9| |10|11|12|
+                parentNode->eraseKey(indexOfLeftSibling);
+                //if it has current node had a right sibling, we have to change the key value
+                //eg.                 |7|
+                //        |3| <--change this key   |10|
+                // |1|2|4|   |5|6|             |7|8|9| |10|11|12|
                 
-        //         leftSib->children[leftSib->getNumKeys()] = NULL;
-        //     }
-        // }
+                if (hasRightSibl){
+                    cout << "-hasRightSibl";
+                    Node * rightChild = (Node *)parentNode->children[indexOfCurentNode];
+                    fixIndexes(parentNode,rightChild);
+                    return leftSibling; //return the leftsibling for the deletion from root case
+                } else {
+                    cout << "-doesNotHaveRightSibl"<<endl;
+                    //do repair
+                    if (parentNode->getNumKeys()<1){
+                        parentNode->keys.push_back(smallestLeafKeyOfRightSubtree(leftSibling)); //intialised 
+                    } else {
+                        parentNode->keys[0] = smallestLeafKeyOfRightSubtree(leftSibling);
+                    }
+                    return leftSibling;
+                }
+            } 
+            //if currentNode is a nonleaf node, we need to fix the first key of currentNode
+            //eg.          |20|
+            //      |7|                || <--fix this
+            //  |1|4| |7|10| |20|21|25|
+            else {
+                cout << "-nonleaf";
+                bool hasRightSibl = hasRightSibling(parentNode, currentNode);
+            
+                //add all from currentNode to left sibling
+                leftSibling->keys.insert(leftSibling->keys.end(), currentNode->keys.begin(), currentNode->keys.end());
+                leftSibling->children.insert(leftSibling->children.end(), currentNode->children.begin(), currentNode->children.end());
+                //erase current node and key from the parent node
+                parentNode->eraseValue(indexOfCurentNode);
+                free(currentNode);
+                parentNode->eraseKeys(parentNode->getNumValues()-1, parentNode->getNumKeys());
+                //eg.                          |7|14|
+                //      -->  |1|10|12|                   |16|
+                // |1|2|6|   |7|8|9| |10|11| |12|13| |14|15| |16|17|
+                if (hasRightSibl){
+                    cout << "-hasRightSibl";
+                    //same index because we removed the currentNode
+                    Node * rightSibling = (Node *)parentNode->children[indexOfCurentNode];
+                    fixIndexes(parentNode, rightSibling);
+                    return leftSibling;
+                } else {
+                    cout << "-noRightSibl";
+                    return leftSibling;
+                }
+            }
+        }
 
-        // void repairAfterDeletion(Node* tree){
-        //     if (tree->getNumKeys() < tree->getMiniNoKeys()){
-        //         if (getParent(tree) == NULL) {
-        //             if (tree->getNumKeys() == 0){
-        //                 //tree is empty.
-        //             }
-        //         }
-        //         else {
-        //             Node * parentNode = getParent(tree);
+        Node * mergeWithRightSibling(Node * parentNode, Node * currentNode){
+            cout << "mergeWithRightSibling";
+            int indexOfCurrentNode = getIndexOfValueInNode(parentNode, currentNode);
+            
+            int indexOfRightSibling = indexOfCurrentNode+1;
+            Node * rightSibling = (Node *)parentNode->children[indexOfRightSibling];
 
-        //             int parentIdx = 0;
-        //             for (parentIdx; parentNode->children[parentIdx] != tree; parentIdx++);
+            if (currentNode->leaf){
+                cout << "-leaf";
+                bool rightSibHasRightSibl = hasRightSibling(parentNode, rightSibling);
+                //add all right sibling keys and values into current node
+                currentNode->keys.insert(currentNode->keys.end(), rightSibling->keys.begin(), rightSibling->keys.end());
+                currentNode->children.insert(currentNode->children.end(), rightSibling->children.begin(), rightSibling->children.end());
+                //since currentNode is a leaf
+                //right sibling's next node should now be connected to current node
+                // eg currentNode <-> rightSibling <-> right right sibling
+                // --> currentNode <-> right right sibling
+                //|1 2|->|5 6|
+                Node * rightRightSibling = rightSibling->nextLeaf;
+                currentNode->nextLeaf = rightRightSibling;
+                //if right sibling is a terminal node, rightRightSibling == NULL
+                if (!rightSibling->isTerminalLeafNode()){
+                    rightRightSibling->previousLeaf = currentNode;
+                }
+                //remove the right sibling
+                parentNode->eraseValue(indexOfRightSibling);
+                free(rightSibling);
+                //remove extra key
+                parentNode->eraseKey(indexOfRightSibling-1);
 
-        //             if (parentIdx > 0 && ((Node*)parentNode->children[parentIdx-1])->getNumKeys() > tree->getMiniNoKeys()){
-        //                 borrowFromLeft(tree, parentIdx);
-        //             }
-        //             else if (parentIdx < parentNode->getNumKeys() && ((Node*)parentNode->children[parentIdx + 1])->getNumKeys() > tree->getMiniNoKeys()) {
-        //                 borrowFromRight(tree, parentIdx);
-        //             }
-        //             else if (parentIdx == 0){
-        //                 Node * nextNode = mergeRight(tree);
-        //                 repairAfterDeletion(getParent(nextNode));
-        //             }
-        //             else {
-        //                 Node * nextNode = mergeRight((Node*)parentNode->children[parentIdx - 1]);
-        //                 repairAfterDeletion(getParent(nextNode));
-        //             }
-        //         }
-        //     }
-        // }   
+                //add the a key to the parent
+                if (parentNode->getNumKeys()<1){
+                    parentNode->keys.push_back(smallestLeafKeyOfRightSubtree(currentNode)); //intialised 
+                } else {
+                    parentNode->keys[0] = smallestLeafKeyOfRightSubtree(currentNode);
+                }
+
+                //fix the index if there is a right sibling of the current node
+                if (rightSibHasRightSibl){
+                    cout << "-hasRightSibl"<<endl;
+                    //same index because we removed the right sibling
+                    rightRightSibling = (Node *)parentNode->children[indexOfRightSibling];
+                    fixIndexes(parentNode, rightRightSibling);
+                    return currentNode;
+                } else {
+                    cout << "-noRightSibl"<<endl;
+                    return currentNode;
+                }
+            } 
+            else{
+                cout << "-nonleaf"<<endl;
+                int smallestLeafKeyOfRightSibling = smallestLeafKeyOfRightSubtree(rightSibling);
+                currentNode->keys[currentNode->getNumKeys()-1] = smallestLeafKeyOfRightSibling;
+                //add all right sibling keys and values into current node
+                currentNode->keys.insert(currentNode->keys.end(), rightSibling->keys.begin(), rightSibling->keys.end());
+                currentNode->children.insert(currentNode->children.end(), rightSibling->children.begin(), rightSibling->children.end());
+                
+                //remove the right sibling
+                parentNode->eraseValue(indexOfRightSibling);
+                free(rightSibling);
+                //remove extra key
+                // parentNode->eraseKey(indexOfRightSibling-1);
+
+                return currentNode;
+            
+            }
+
+        }
 };
 
 
 
 
-// int main()
-// {
-//     int a=1;
-//     int b=2;
-//     int c=3;
-//     int d=4;
-//     bTree tree=bTree(3);
+int main()
+{
+    pair<int,int> a= make_pair(1, 1);
+    pair<int,int> b= make_pair(1, 2);
+    pair<int,int> c= make_pair(1, 3);
+    pair<int,int> d= make_pair(1, 4);
+    bTree tree=bTree(3);
 
-//     tree.insertToBTree(1,&a);
-//     tree.printNodeTree();
-//     tree.insertToBTree(2,&a);
-//     tree.printNodeTree();
-//     tree.insertToBTree(3,&b);
-//     tree.printNodeTree();
+    tree.insertToBTree(1,&a);
+    tree.printNodeTree();
+    cout<<endl;
+    tree.insertToBTree(2,&a);
+    tree.printNodeTree();
+    cout<<endl;
+    tree.insertToBTree(3,&b);
+    tree.printNodeTree();
+    cout<<endl;
 
-//     tree.insertToBTree(4,&b);
-//     tree.printNodeTree();
+    tree.insertToBTree(4,&b);
+    tree.printNodeTree();
+    cout<<endl;
+    tree.insertToBTree(4,&b);
+    tree.printNodeTree();
+    cout<<endl;
+
+    tree.insertToBTree(5,&b);
+    tree.printNodeTree();
+    cout<<endl;
+    tree.insertToBTree(5,&b);
+    tree.printNodeTree();
+    cout<<endl;
+    tree.insertToBTree(8,&b);
+    tree.printNodeTree();
+    cout<<endl;
+    tree.insertToBTree(10,&c);
+    tree.printNodeTree();
+    cout<<endl;
+
+    tree.insertToBTree(11,&c);
+    tree.printNodeTree();
+    cout<<endl;
+
+    tree.insertToBTree(11,&c);
+    tree.printNodeTree();
+    cout<<endl;
+
+    tree.insertToBTree(12,&c);
+    tree.printNodeTree();
+    cout<<endl;
 
 
-//     tree.insertToBTree(5,&c);
-//     tree.printNodeTree();
-//     tree.insertToBTree(6,&c);
-//     tree.printNodeTree();
-//     tree.insertToBTree(6,&c);
-//     tree.printNodeTree();
-//     tree.insertToBTree(7,&d);
-//     tree.printNodeTree();
-//     // tree.insertToBTree(6,&d);
-//     // tree.printNodeTree();
-//     // tree.insertToBTree(7,&d);
-//     // tree.printNodeTree();
-
-//     tree.printLastRow();
-
-//     // tree.printLastRowPointers();
-
-//     // tree.insertToBTree(8,&b);
-//     // tree.printNodeTree();
-//     // tree.insertToBTree(9,&b);
-//     // tree.printNodeTree();
-
-//     // tree.insertToBTree(10,&b);
-//     // tree.printNodeTree();
-//     // tree.insertToBTree(11,&b);
-//     // tree.printNodeTree();
-//     // tree.insertToBTree(12,&b);
-//     // tree.printNodeTree();
-//     // tree.insertToBTree(13,&b);
-//     // tree.printNodeTree();
-//     // tree.insertToBTree(14,&b);
-//     // tree.printNodeTree();
-
-//     // tree.insertToBTree(15,&b);
-//     // tree.printNodeTree();
-//     // tree.insertToBTree(16,&b);
-//     // tree.printNodeTree();
-//     // tree.insertToBTree(17,&b);
-//     // tree.printNodeTree();
-//     // tree.insertToBTree(18,&c);
-//     // tree.printNodeTree();
-//     // tree.insertToBTree(19,&c);
-//     // tree.printNodeTree();
-//     // tree.insertToBTree(20,&c);
-//     // tree.printNodeTree();
-//     // tree.insertToBTree(21,&c);
-//     // tree.printNodeTree();
-//     // tree.insertToBTree(22,&c);
-//     // tree.printNodeTree();
-//     // tree.insertToBTree(23,&c);
-//     // tree.printNodeTree();
-//     // tree.insertToBTree(24,&c);
-//     // tree.printNodeTree();
-//     // tree.insertToBTree(25,&c);
-//     // tree.printNodeTree();
-//     // tree.insertToBTree(26,&c);
-//     // tree.printNodeTree();
-//     // tree.insertToBTree(27,&c);
-//     // tree.printNodeTree();
-//     // tree.insertToBTree(28,&c);
-//     // tree.printNodeTree();
-//     // tree.insertToBTree(29,&c);
-//     // tree.printNodeTree();
-//     // tree.insertToBTree(30,&c);
-//     // tree.printNodeTree();
-//     // tree.insertToBTree(31,&c);
-//     // tree.printNodeTree();
-//     // tree.insertToBTree(32,&c);
-//     // tree.printNodeTree();
-//     // tree.insertToBTree(33,&c);
-//     // tree.printNodeTree();
-
-//     // tree.insertToBTree(16,&a);
-//     // tree.printNodeTree();   
-//     // tree.insertToBTree(15,&a);
-//     // tree.printNodeTree();
-//     // tree.insertToBTree(14,&a);
-//     // tree.printNodeTree();
-//     // tree.insertToBTree(13,&a);
-//     // tree.printNodeTree();
-//     // tree.insertToBTree(12,&a);
-//     // tree.printNodeTree();
-//     // tree.insertToBTree(11,&a);
-//     // tree.printNodeTree();
-//     // tree.insertToBTree(10,&a);
-//     // tree.printNodeTree();
-//     // tree.insertToBTree(9,&b);
-//     // tree.printNodeTree();
-//     // tree.insertToBTree(8,&b);
-//     // tree.printNodeTree();
-//     // tree.insertToBTree(7,&b);
-//     // tree.printNodeTree();
-
-//     // tree.insertToBTree(6,&b);
-//     // tree.printNodeTree();
-//     // tree.insertToBTree(5,&b);
-//     // tree.printNodeTree(); //<-
-//     // tree.insertToBTree(4,&b);
-//     // tree.printNodeTree();
-//     // tree.insertToBTree(3,&b);
-//     // tree.printNodeTree();
-//     // tree.insertToBTree(2,&b);
-//     // tree.printNodeTree();
-
-// //     // tree.insertToBTree(1,&b);
-// //     // tree.printNodeTree();
+    tree.insertToBTree(13,&c);
+    tree.printNodeTree();
+    cout<<endl;
     
-// //     // vector<int> intvec = {1, 2, 3, 4};
-// //     // vector<int> newvec;
-// //     // newvec.insert(newvec.begin(),intvec.begin()+2, intvec.begin()+3);
-// //     // intvec.erase(intvec.begin()+2, intvec.begin()+intvec.size());    
-// //     // for (auto i : intvec){
-// //     //     cout << i<< "\t";
-// //     // }
-// //     // cout <<"\n";
-// //     // for (auto i : newvec){
-// //     //     cout << i<< "\t";
-// //     // }
-// //     // cout <<"\n";
-// //     // tree.insert(3,&c);
-// //     // tree.insert(4,&c);
-// //     // tree.insert(5,&c);
-// //     // tree.insert(6,&c);
-// //     // tree.insert(7,&c);
-// //     // tree.getRoot()->printThisNode();
-// //     //Node* temp=(Node* )tree.getRoot()->children[2];
-// //     //temp->printThisNode();
-// //     //tree.insert(4,&c);
-// //     //tree.insert(5,&c);
-// //     //tree.insert(6,&c);
-// //     //tree.getRoot()->printAllNodes();
-//     return 0;
-// }
+
+    tree.insertToBTree(14,&c);
+    tree.printNodeTree();
+    cout<<endl;
+
+    tree.insertToBTree(15,&c);
+    tree.printNodeTree();
+    cout<<endl;
+
+    tree.insertToBTree(16,&c);
+    tree.printNodeTree();
+    cout<<endl;
+    
+    tree.insertToBTree(4,&c);
+    tree.printNodeTree();
+    cout<<endl;
+    
+    tree.insertToBTree(4,&c);
+    tree.printNodeTree();
+    cout<<endl;
+
+    tree.insertToBTree(4,&c);
+    tree.printNodeTree();
+    cout<<endl;
+
+    tree.insertToBTree(4,&c);
+    tree.printNodeTree();
+    cout<<endl;
+    
+    
+    
+    
+    tree.deleteOneKey(5);
+    tree.printNodeTree();
+    cout<<endl;
+
+    tree.deleteOneKey(8);
+    tree.printNodeTree();
+    cout<<endl;
+
+    tree.deleteOneKey(10);
+    tree.printNodeTree();
+    cout<<endl;
+
+    // tree.deleteOneKey(5);
+    // tree.printNodeTree();
+    // cout<<endl;
+
+    // tree.deleteOneKey(11);
+    // tree.printNodeTree();
+    // cout<<endl;
+
+    // tree.deleteOneKey(11);
+    // tree.printNodeTree();
+    // cout<<endl;
+
+
+
+
+    //  tree.deleteOneKey(2);
+    // tree.printNodeTree();
+    // cout<<endl;
+    //  tree.deleteOneKey(6);
+    // tree.printNodeTree();
+    // cout<<endl;
+
+
+
+
+
+
+    tree.printLastRowPointers();
+  
+
+
+    // tree.deleteOneKey(10);
+    // tree.printNodeTree();
+    // cout<<endl;
+    // tree.insertToBTree(5,&c);
+    // tree.printNodeTree();
+    // tree.insertToBTree(6,&c);
+    // tree.printNodeTree();
+    // tree.insertToBTree(6,&c);
+    // tree.printNodeTree();
+    // tree.insertToBTree(7,&d);
+    // tree.printNodeTree();
+    // // tree.insertToBTree(6,&d);
+    // // tree.printNodeTree();
+    // // tree.insertToBTree(7,&d);
+    // // tree.printNodeTree();
+
+    // tree.printLastRow();
+
+    // tree.printLastRowPointers();
+
+    // tree.insertToBTree(8,&b);
+    // tree.printNodeTree();
+    // tree.insertToBTree(9,&b);
+    // tree.printNodeTree();
+
+    // tree.insertToBTree(10,&b);
+    // tree.printNodeTree();
+    // tree.insertToBTree(11,&b);
+    // tree.printNodeTree();
+    // tree.insertToBTree(12,&b);
+    // tree.printNodeTree();
+    // tree.insertToBTree(13,&b);
+    // tree.printNodeTree();
+    // tree.insertToBTree(14,&b);
+    // tree.printNodeTree();
+
+    // tree.insertToBTree(15,&b);
+    // tree.printNodeTree();
+    // tree.insertToBTree(16,&b);
+    // tree.printNodeTree();
+    // tree.insertToBTree(17,&b);
+    // tree.printNodeTree();
+    // tree.insertToBTree(18,&c);
+    // tree.printNodeTree();
+    // tree.insertToBTree(19,&c);
+    // tree.printNodeTree();
+    // tree.insertToBTree(20,&c);
+    // tree.printNodeTree();
+    // tree.insertToBTree(21,&c);
+    // tree.printNodeTree();
+    // tree.insertToBTree(22,&c);
+    // tree.printNodeTree();
+    // tree.insertToBTree(23,&c);
+    // tree.printNodeTree();
+    // tree.insertToBTree(24,&c);
+    // tree.printNodeTree();
+    // tree.insertToBTree(25,&c);
+    // tree.printNodeTree();
+    // tree.insertToBTree(26,&c);
+    // tree.printNodeTree();
+    // tree.insertToBTree(27,&c);
+    // tree.printNodeTree();
+    // tree.insertToBTree(28,&c);
+    // tree.printNodeTree();
+    // tree.insertToBTree(29,&c);
+    // tree.printNodeTree();
+    // tree.insertToBTree(30,&c);
+    // tree.printNodeTree();
+    // tree.insertToBTree(31,&c);
+    // tree.printNodeTree();
+    // tree.insertToBTree(32,&c);
+    // tree.printNodeTree();
+    // tree.insertToBTree(33,&c);
+    // tree.printNodeTree();
+
+    // tree.insertToBTree(16,&a);
+    // tree.printNodeTree();   
+    // tree.insertToBTree(15,&a);
+    // tree.printNodeTree();
+    // tree.insertToBTree(14,&a);
+    // tree.printNodeTree();
+    // tree.insertToBTree(13,&a);
+    // tree.printNodeTree();
+    // tree.insertToBTree(12,&a);
+    // tree.printNodeTree();
+    // tree.insertToBTree(11,&a);
+    // tree.printNodeTree();
+    // tree.insertToBTree(10,&a);
+    // tree.printNodeTree();
+    // tree.insertToBTree(9,&b);
+    // tree.printNodeTree();
+    // tree.insertToBTree(8,&b);
+    // tree.printNodeTree();
+    // tree.insertToBTree(7,&b);
+    // tree.printNodeTree();
+
+    // tree.insertToBTree(6,&b);
+    // tree.printNodeTree();
+    // tree.insertToBTree(5,&b);
+    // tree.printNodeTree(); //<-
+    // tree.insertToBTree(4,&b);
+    // tree.printNodeTree();
+    // tree.insertToBTree(3,&b);
+    // tree.printNodeTree();
+    // tree.insertToBTree(2,&b);
+    // tree.printNodeTree();
+
+//     // tree.insertToBTree(1,&b);
+//     // tree.printNodeTree();
+    
+//     // vector<int> intvec = {1, 2, 3, 4};
+//     // vector<int> newvec;
+//     // newvec.insert(newvec.begin(),intvec.begin()+2, intvec.begin()+3);
+//     // intvec.erase(intvec.begin()+2, intvec.begin()+intvec.size());    
+//     // for (auto i : intvec){
+//     //     cout << i<< "\t";
+//     // }
+//     // cout <<"\n";
+//     // for (auto i : newvec){
+//     //     cout << i<< "\t";
+//     // }
+//     // cout <<"\n";
+//     // tree.insert(3,&c);
+//     // tree.insert(4,&c);
+//     // tree.insert(5,&c);
+//     // tree.insert(6,&c);
+//     // tree.insert(7,&c);
+//     // tree.getRoot()->printThisNode();
+//     //Node* temp=(Node* )tree.getRoot()->children[2];
+//     //temp->printThisNode();
+//     //tree.insert(4,&c);
+//     //tree.insert(5,&c);
+//     //tree.insert(6,&c);
+//     //tree.getRoot()->printAllNodes();
+    return 0;
+}
