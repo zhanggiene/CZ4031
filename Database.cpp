@@ -102,7 +102,7 @@ class Database {
 
         void experiment3()
         {
-            vector<pair<int,int> > result=btree.search(500);
+            vector<pair<int,int> > result=btree.search(1000);
             cout<<endl;
             float SUM=0;
 
@@ -174,6 +174,26 @@ class Database {
             }
             cout << "Number of times that a node is deleted: "<<merged_node_count<<endl;
             cout<<"done";
+        }
+
+
+         void experiment5()
+        {
+
+
+             vector<pair<int,int> > result=btree.search(1000);
+            cout<<endl;
+            cout<<"Size of result: "<<result.size()<<"\n";
+
+            for (int i=0;i<result.size();i++)
+            {
+                btree.deleteOneKey(1000);
+                auto temp=btree.search(1000);
+                cout<<i<<endl;
+                cout<<"Size of result: "<<temp.size()<<"\n";
+
+
+            }
         }
 
 

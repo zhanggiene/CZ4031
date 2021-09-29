@@ -594,8 +594,16 @@ class bTree
             } 
             cout<<"_________________________________________\n";
             cout<<"Top 5 content of the data nodes: "<<endl;
-            current_node->printAllKeys();
+            // current_node->printAllKeys();
             cout<<"debug______";
+
+            // <999 999 999>   if the last element is not 1000, then current got to the next one
+            if (current_node->keys.back()!=numVotes)
+            {
+                current_node=current_node->nextLeaf;
+            }
+
+
             while(current_node!=NULL && current_node->keys[0]<=numVotes)
             {
                 dataNodeNumber+=1;
@@ -1158,6 +1166,81 @@ class bTree
 
 
 
+/*
+int main()
+{
+    pair<int,int> a= make_pair(1, 1);
+    pair<int,int> b= make_pair(1, 2);
+    pair<int,int> c= make_pair(1, 3);
+    pair<int,int> d= make_pair(1, 4);
+    bTree tree=bTree(3);
+
+    tree.insertToBTree(1,&a);
+    tree.printNodeTree();
+    tree.printLastRowReverse();
+    cout<<endl;
+    tree.insertToBTree(4,&a);
+    tree.printNodeTree();
+    tree.printLastRowReverse();
+    cout<<endl;
+
+    tree.insertToBTree(7,&b);
+    tree.printNodeTree();
+    tree.printLastRowReverse();
+    cout<<endl;
+    tree.insertToBTree(10,&b);
+    tree.printNodeTree();
+    tree.printLastRowReverse();
+    cout<<endl;
+
+    tree.insertToBTree(20,&b);
+    tree.printNodeTree();
+    tree.printLastRowReverse();
+    cout<<endl;
+    tree.insertToBTree(21,&b);
+    tree.printNodeTree();
+    tree.printLastRowReverse();
+    cout<<endl;
+    tree.insertToBTree(25,&b);
+    tree.printNodeTree();
+    tree.printLastRowReverse();
+    cout<<endl;
+    tree.insertToBTree(31,&c);
+    tree.printNodeTree();
+    tree.printLastRowReverse();
+    cout<<endl;
+
+
+    cout<<"deletion test now";
+
+    tree.deleteOneKey(4);
+    tree.printNodeTree();
+    tree.printLastRowReverse();
+    cout<<endl;
+
+        tree.deleteOneKey(10);
+    tree.printNodeTree();
+    tree.printLastRowReverse();
+    cout<<endl;
+
+    tree.deleteOneKey(20);
+    tree.printNodeTree();
+    tree.printLastRowReverse();
+    cout<<endl;
+
+
+
+    // tree.insertToBTree(14,&c);
+    // tree.printNodeTree();
+    // tree.printLastRowReverse();
+    // cout<<endl;
+
+
+
+
+
+// }
+*/
 
 // int main()
 // {
@@ -1195,35 +1278,3 @@ class bTree
 
 //     tree.deleteOneKey(10);
 //     tree.printNodeTree();
-
-
-
-// }
-
-    // tree.insertToBTree(1,&b);
-    // tree.printNodeTree();
-    
-    // vector<int> intvec = {1, 2, 3, 4};
-    // vector<int> newvec;
-    // newvec.insert(newvec.begin(),intvec.begin()+2, intvec.begin()+3);
-    // intvec.erase(intvec.begin()+2, intvec.begin()+intvec.size());    
-    // for (auto i : intvec){
-    //     cout << i<< "\t";
-    // }
-    // cout <<"\n";
-    // for (auto i : newvec){
-    //     cout << i<< "\t";
-    // }
-    // cout <<"\n";
-    // tree.insert(3,&c);
-    // tree.insert(4,&c);
-    // tree.insert(5,&c);
-    // tree.insert(6,&c);
-    // tree.insert(7,&c);
-    // tree.getRoot()->printThisNode();
-    //Node* temp=(Node* )tree.getRoot()->children[2];
-    //temp->printThisNode();
-    //tree.insert(4,&c);
-    //tree.insert(5,&c);
-    //tree.insert(6,&c);
-    //tree.getRoot()->printAllNodes();
