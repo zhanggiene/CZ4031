@@ -412,13 +412,16 @@ class bTree
                 vector <Node*> traversalNodes;
                 Node * current_node = _root;
                 traversalNodes.push_back(current_node);
+                cout << "Traversed Path: ";
+                current_node->printAllKeys();
                 //if it is not a leaf
                 while(!current_node->leaf){
-                    current_node->printAllKeys();
                     int childrenIndex=upper_bound(current_node->keys.begin(),current_node->keys.end(),key)-current_node->keys.begin();
                     current_node=(Node* )current_node->children[childrenIndex];
                     traversalNodes.push_back(current_node);
+                    current_node->printAllKeys();
                 }
+                cout << endl;
 
                 return traversalNodes;
         }
@@ -488,6 +491,7 @@ class bTree
                 current_node=current_node->previousLeaf;
 
             } 
+            cout << endl;
 
         }
 
@@ -895,7 +899,10 @@ class bTree
                 void * lastValue = leftSibling->children.back();
                 leftSibling->keys.pop_back();
                 leftSibling->children.pop_back();
-
+                //add in a new key to the start of the current node
+                //the value of the key = the smallest key of the first child node
+                currentNode->keys.insert(currentNode->keys.begin(), smallestLeafKeyOfRightSubtree((Node *)currentNode->children[0]));
+                //insert the child borrow from the left sibling
                 currentNode->children.insert(currentNode->children.begin(), lastValue);
             }
         }
@@ -987,7 +994,6 @@ class bTree
             
             if (currentNode->leaf){
                 cout << "-leaf";
-                bool hasRightSibl =hasRightSibling(parentNode, currentNode);
                 //add all from currentNode to left sibling
                 leftSibling->keys.insert(leftSibling->keys.end(), currentNode->keys.begin(), currentNode->keys.end());
                 leftSibling->children.insert(leftSibling->children.end(), currentNode->children.begin(), currentNode->children.end());
@@ -1007,29 +1013,14 @@ class bTree
                 //remove extra keys
                 //In this case, (num values of parent -1) = 2-1=1
                 //eg.                 |7|
-                //        |3|5| <--remove this key   |10|
+                //      remove this key--> |3|5|    |10|
                 // |1|2|4|   |5|6|             |7|8|9| |10|11|12|
                 parentNode->eraseKey(indexOfLeftSibling);
-                //if it has current node had a right sibling, we have to change the key value
                 //eg.                 |7|
-                //        |3| <--change this key   |10|
+                //        |5| <--change this key   |10|
                 // |1|2|4|   |5|6|             |7|8|9| |10|11|12|
-                
-                if (hasRightSibl){
-                    cout << "-hasRightSibl"<<endl;
-                    Node * rightChild = (Node *)parentNode->children[indexOfCurentNode];
-                    fixIndexes(parentNode,rightChild);
-                    return leftSibling; //return the leftsibling for the deletion from root case
-                } else {
-                    cout << "-doesNotHaveRightSibl"<<endl;
-                    //do repair
-                    if (parentNode->getNumKeys()<1){
-                        parentNode->keys.push_back(smallestLeafKeyOfRightSubtree(leftSibling)); //intialised 
-                    } else {
-                        parentNode->keys[0] = smallestLeafKeyOfRightSubtree(leftSibling);
-                    }
-                    return leftSibling;
-                }
+                cout << endl;
+                return leftSibling;
             } 
             //if currentNode is a nonleaf node, we need to fix the first key of currentNode
             //eg.          |20|
@@ -1037,28 +1028,23 @@ class bTree
             //  |1|4| |7|10| |20|21|25|
             else {
                 cout << "-nonleaf";
-                bool hasRightSibl = hasRightSibling(parentNode, currentNode);
-            
+                //eg.                          |7|14|
+                //       |7|10|12| | <-- add in a key
+                // |1|2|6|   |7|8|9| |10|11| |12|13| |14|15|17|
+                //eg.                          |7|14|
+                //       |7|10|12|14| <-- add in a key
+                // |1|2|6|   |7|8|9| |10|11| |12|13| |14|15|17|
+                leftSibling->keys.push_back(smallestLeafKeyOfRightSubtree((Node *)currentNode->children[0]));
                 //add all from currentNode to left sibling
                 leftSibling->keys.insert(leftSibling->keys.end(), currentNode->keys.begin(), currentNode->keys.end());
                 leftSibling->children.insert(leftSibling->children.end(), currentNode->children.begin(), currentNode->children.end());
                 //erase current node and key from the parent node
                 parentNode->eraseValue(indexOfCurentNode);
                 free(currentNode);
-                parentNode->eraseKeys(parentNode->getNumValues()-1, parentNode->getNumKeys());
-                //eg.                          |7|14|
-                //      -->  |1|10|12|                   |16|
-                // |1|2|6|   |7|8|9| |10|11| |12|13| |14|15| |16|17|
-                if (hasRightSibl){
-                    cout << "-hasRightSibl";
-                    //same index because we removed the currentNode
-                    Node * rightSibling = (Node *)parentNode->children[indexOfCurentNode];
-                    fixIndexes(parentNode, rightSibling);
-                    return leftSibling;
-                } else {
-                    cout << "-noRightSibl";
-                    return leftSibling;
-                }
+                parentNode->eraseKey(indexOfLeftSibling);
+
+                cout << endl;
+                return leftSibling;
             }
         }
 
@@ -1098,7 +1084,7 @@ class bTree
                 } else {
                     parentNode->keys[0] = smallestLeafKeyOfRightSubtree(currentNode);
                 }
-
+        
                 //fix the index if there is a right sibling of the current node
                 if (rightSibHasRightSibl){
                     cout << "-hasRightSibl"<<endl;
@@ -1124,9 +1110,7 @@ class bTree
                 free(rightSibling);
                 //remove extra key
                 // parentNode->eraseKey(indexOfRightSibling-1);
-
                 return currentNode;
-            
             }
 
         }
@@ -1181,281 +1165,65 @@ class bTree
 //     pair<int,int> b= make_pair(1, 2);
 //     pair<int,int> c= make_pair(1, 3);
 //     pair<int,int> d= make_pair(1, 4);
-//     bTree tree=bTree(3);
+//     bTree tree=bTree(4);
 
-//     tree.insertToBTree(1,&a);
+//     for (int i=1;i<19;i++){
+//         tree.insertToBTree(i, &b);
+//     }
 //     tree.printNodeTree();
-//     tree.printLastRowReverse();
-//     cout<<endl;
-//     tree.insertToBTree(4,&a);
-//     tree.printNodeTree();
-//     tree.printLastRowReverse();
-//     cout<<endl;
-//     tree.insertToBTree(7,&b);
-//     tree.printNodeTree();
-//     tree.printLastRowReverse();
-//     cout<<endl;
+//     // tree.printLastRowReverse();
 
-//     tree.insertToBTree(10,&b);
+//     tree.deleteOneKey(12);
 //     tree.printNodeTree();
-//     tree.printLastRowReverse();
-//     cout<<endl;
-//     tree.insertToBTree(17,&b);
-//     tree.printNodeTree();
-//     tree.printLastRowReverse();
-//     cout<<endl;
+//     // tree.printLastRowReverse();
 
-//     tree.insertToBTree(19,&b);
+//     tree.deleteOneKey(15);
 //     tree.printNodeTree();
-//     tree.printLastRowReverse();
-//     cout<<endl;
-//     tree.insertToBTree(20,&b);
-//     tree.printNodeTree();
-//     tree.printLastRowReverse();
-//     cout<<endl;
-//     tree.insertToBTree(21,&b);
-//     tree.printNodeTree();
-//     tree.printLastRowReverse();
-//     cout<<endl;
-//     tree.insertToBTree(25,&c);
-//     tree.printNodeTree();
-//     tree.printLastRowReverse();
-//     cout<<endl;
+//     // tree.printLastRowReverse();
 
-//     tree.insertToBTree(28,&c);
+//     tree.deleteOneKey(16);
 //     tree.printNodeTree();
-//     tree.printLastRowReverse();
-//     cout<<endl;
 
-//     tree.insertToBTree(31,&c);
+//      tree.deleteOneKey(14);
 //     tree.printNodeTree();
-//     tree.printLastRowReverse();
-//     cout<<endl;
 
-//     tree.insertToBTree(42,&c);
+//     tree.deleteOneKey(13);
 //     tree.printNodeTree();
-//     tree.printLastRowReverse();
-//     cout<<endl;
 
-    
-
-//     tree.insertToBTree(14,&c);
+//     tree.deleteOneKey(11);
 //     tree.printNodeTree();
-//     tree.printLastRowReverse();
-//     cout<<endl;
-
-//     tree.insertToBTree(15,&c);
-//     tree.printNodeTree();
-//     tree.printLastRowReverse();
-//     cout<<endl;
-
-//     tree.insertToBTree(16,&c);
-//     tree.printNodeTree();
-//     tree.printLastRowReverse();
-//     cout<<endl;
-    
-//     tree.insertToBTree(4,&c);
-//     tree.printNodeTree();
-//     tree.printLastRowReverse();
-//     cout<<endl;
-    
-//     tree.insertToBTree(4,&c);
-//     tree.printNodeTree();
-//     tree.printLastRowReverse();
-//     cout<<endl;
-
-//     tree.insertToBTree(4,&c);
-//     tree.printNodeTree();
-//     tree.printLastRowReverse();
-//     cout<<endl;
-
-//     tree.insertToBTree(4,&c);
-//     tree.printNodeTree();
-//     tree.printLastRowReverse();
-//     cout<<endl;
-    
-    
-    
-    
-//     tree.deleteOneKey(5);
-//     tree.printNodeTree();
-//     tree.printLastRowReverse();
-//     cout<<endl;
-
-//     tree.deleteOneKey(8);
-//     tree.printNodeTree();
-//     tree.printLastRowReverse();
-//     cout<<endl;
 
 //     tree.deleteOneKey(10);
 //     tree.printNodeTree();
-//     tree.printLastRowReverse();
-//     cout<<endl;
-//     return 0;
+
+
+
 // }
 
-    // tree.deleteOneKey(5);
+    // tree.insertToBTree(1,&b);
     // tree.printNodeTree();
-    // cout<<endl;
-
-    // tree.deleteOneKey(11);
-    // tree.printNodeTree();
-    // cout<<endl;
-
-    // tree.deleteOneKey(11);
-    // tree.printNodeTree();
-    // cout<<endl;
-
-
-
-
-    //  tree.deleteOneKey(2);
-    // tree.printNodeTree();
-    // cout<<endl;
-    //  tree.deleteOneKey(6);
-    // tree.printNodeTree();
-    // cout<<endl;
-
-
-
-
-
-
-    //tree.printLastRowPointers();
-  
-
-
-    // tree.deleteOneKey(10);
-    // tree.printNodeTree();
-    // cout<<endl;
-    // tree.insertToBTree(5,&c);
-    // tree.printNodeTree();
-    // tree.insertToBTree(6,&c);
-    // tree.printNodeTree();
-    // tree.insertToBTree(6,&c);
-    // tree.printNodeTree();
-    // tree.insertToBTree(7,&d);
-    // tree.printNodeTree();
-    // // tree.insertToBTree(6,&d);
-    // // tree.printNodeTree();
-    // // tree.insertToBTree(7,&d);
-    // // tree.printNodeTree();
-
-    // tree.printLastRow();
-
-    // tree.printLastRowPointers();
-
-    // tree.insertToBTree(8,&b);
-    // tree.printNodeTree();
-    // tree.insertToBTree(9,&b);
-    // tree.printNodeTree();
-
-    // tree.insertToBTree(10,&b);
-    // tree.printNodeTree();
-    // tree.insertToBTree(11,&b);
-    // tree.printNodeTree();
-    // tree.insertToBTree(12,&b);
-    // tree.printNodeTree();
-    // tree.insertToBTree(13,&b);
-    // tree.printNodeTree();
-    // tree.insertToBTree(14,&b);
-    // tree.printNodeTree();
-
-    // tree.insertToBTree(15,&b);
-    // tree.printNodeTree();
-    // tree.insertToBTree(16,&b);
-    // tree.printNodeTree();
-    // tree.insertToBTree(17,&b);
-    // tree.printNodeTree();
-    // tree.insertToBTree(18,&c);
-    // tree.printNodeTree();
-    // tree.insertToBTree(19,&c);
-    // tree.printNodeTree();
-    // tree.insertToBTree(20,&c);
-    // tree.printNodeTree();
-    // tree.insertToBTree(21,&c);
-    // tree.printNodeTree();
-    // tree.insertToBTree(22,&c);
-    // tree.printNodeTree();
-    // tree.insertToBTree(23,&c);
-    // tree.printNodeTree();
-    // tree.insertToBTree(24,&c);
-    // tree.printNodeTree();
-    // tree.insertToBTree(25,&c);
-    // tree.printNodeTree();
-    // tree.insertToBTree(26,&c);
-    // tree.printNodeTree();
-    // tree.insertToBTree(27,&c);
-    // tree.printNodeTree();
-    // tree.insertToBTree(28,&c);
-    // tree.printNodeTree();
-    // tree.insertToBTree(29,&c);
-    // tree.printNodeTree();
-    // tree.insertToBTree(30,&c);
-    // tree.printNodeTree();
-    // tree.insertToBTree(31,&c);
-    // tree.printNodeTree();
-    // tree.insertToBTree(32,&c);
-    // tree.printNodeTree();
-    // tree.insertToBTree(33,&c);
-    // tree.printNodeTree();
-
-    // tree.insertToBTree(16,&a);
-    // tree.printNodeTree();   
-    // tree.insertToBTree(15,&a);
-    // tree.printNodeTree();
-    // tree.insertToBTree(14,&a);
-    // tree.printNodeTree();
-    // tree.insertToBTree(13,&a);
-    // tree.printNodeTree();
-    // tree.insertToBTree(12,&a);
-    // tree.printNodeTree();
-    // tree.insertToBTree(11,&a);
-    // tree.printNodeTree();
-    // tree.insertToBTree(10,&a);
-    // tree.printNodeTree();
-    // tree.insertToBTree(9,&b);
-    // tree.printNodeTree();
-    // tree.insertToBTree(8,&b);
-    // tree.printNodeTree();
-    // tree.insertToBTree(7,&b);
-    // tree.printNodeTree();
-
-    // tree.insertToBTree(6,&b);
-    // tree.printNodeTree();
-    // tree.insertToBTree(5,&b);
-    // tree.printNodeTree(); //<-
-    // tree.insertToBTree(4,&b);
-    // tree.printNodeTree();
-    // tree.insertToBTree(3,&b);
-    // tree.printNodeTree();
-    // tree.insertToBTree(2,&b);
-    // tree.printNodeTree();
-
-//     // tree.insertToBTree(1,&b);
-//     // tree.printNodeTree();
     
-//     // vector<int> intvec = {1, 2, 3, 4};
-//     // vector<int> newvec;
-//     // newvec.insert(newvec.begin(),intvec.begin()+2, intvec.begin()+3);
-//     // intvec.erase(intvec.begin()+2, intvec.begin()+intvec.size());    
-//     // for (auto i : intvec){
-//     //     cout << i<< "\t";
-//     // }
-//     // cout <<"\n";
-//     // for (auto i : newvec){
-//     //     cout << i<< "\t";
-//     // }
-//     // cout <<"\n";
-//     // tree.insert(3,&c);
-//     // tree.insert(4,&c);
-//     // tree.insert(5,&c);
-//     // tree.insert(6,&c);
-//     // tree.insert(7,&c);
-//     // tree.getRoot()->printThisNode();
-//     //Node* temp=(Node* )tree.getRoot()->children[2];
-//     //temp->printThisNode();
-//     //tree.insert(4,&c);
-//     //tree.insert(5,&c);
-//     //tree.insert(6,&c);
-//     //tree.getRoot()->printAllNodes();
+    // vector<int> intvec = {1, 2, 3, 4};
+    // vector<int> newvec;
+    // newvec.insert(newvec.begin(),intvec.begin()+2, intvec.begin()+3);
+    // intvec.erase(intvec.begin()+2, intvec.begin()+intvec.size());    
+    // for (auto i : intvec){
+    //     cout << i<< "\t";
+    // }
+    // cout <<"\n";
+    // for (auto i : newvec){
+    //     cout << i<< "\t";
+    // }
+    // cout <<"\n";
+    // tree.insert(3,&c);
+    // tree.insert(4,&c);
+    // tree.insert(5,&c);
+    // tree.insert(6,&c);
+    // tree.insert(7,&c);
+    // tree.getRoot()->printThisNode();
+    //Node* temp=(Node* )tree.getRoot()->children[2];
+    //temp->printThisNode();
+    //tree.insert(4,&c);
+    //tree.insert(5,&c);
+    //tree.insert(6,&c);
+    //tree.getRoot()->printAllNodes();

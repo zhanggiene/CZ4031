@@ -1,8 +1,2 @@
-                bool rightSibHasRightSibl = hasRightSibling(parentNode, currentNode);
-                if (rightSibHasRightSibl){
-                    Node * rightRightSibling = (Node *)parentNode->children[indexOfRightSibling];
-                    fixIndexes(parentNode, rightRightSibling);
-                    return currentNode;
-                } else {
-                    return currentNode;
-                }
+
+// //     // d.insert("tt00000a	5.3   	1807");
