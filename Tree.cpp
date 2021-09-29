@@ -1076,8 +1076,7 @@ class bTree
             Node * rightSibling = (Node *)parentNode->children[indexOfRightSibling];
 
             if (currentNode->leaf){
-                cout << "-leaf";
-                bool rightSibHasRightSibl = hasRightSibling(parentNode, rightSibling);
+                cout << "-leaf"<<endl;
                 //add all right sibling keys and values into current node
                 currentNode->keys.insert(currentNode->keys.end(), rightSibling->keys.begin(), rightSibling->keys.end());
                 currentNode->children.insert(currentNode->children.end(), rightSibling->children.begin(), rightSibling->children.end());
@@ -1097,25 +1096,7 @@ class bTree
                 deleteNode(rightSibling);
                 //remove extra key
                 parentNode->eraseKey(indexOfRightSibling-1);
-
-                //add the a key to the parent
-                if (parentNode->getNumKeys()<1){
-                    parentNode->keys.push_back(smallestLeafKeyOfRightSubtree(currentNode)); //intialised 
-                } else {
-                    parentNode->keys[0] = smallestLeafKeyOfRightSubtree(currentNode);
-                }
-        
-                //fix the index if there is a right sibling of the current node
-                if (rightSibHasRightSibl){
-                    cout << "-hasRightSibl"<<endl;
-                    //same index because we removed the right sibling
-                    rightRightSibling = (Node *)parentNode->children[indexOfRightSibling];
-                    fixIndexes(parentNode, rightRightSibling);
-                    return currentNode;
-                } else {
-                    cout << "-noRightSibl"<<endl;
-                    return currentNode;
-                }
+                return currentNode;
             } 
             else{
                 cout << "-nonleaf"<<endl;
@@ -1124,7 +1105,6 @@ class bTree
                 //add all right sibling keys and values into current node
                 currentNode->keys.insert(currentNode->keys.end(), rightSibling->keys.begin(), rightSibling->keys.end());
                 currentNode->children.insert(currentNode->children.end(), rightSibling->children.begin(), rightSibling->children.end());
-                
                 //remove the right sibling
                 parentNode->eraseValue(indexOfRightSibling);
                 deleteNode(rightSibling);
@@ -1135,44 +1115,31 @@ class bTree
 
         }
 
-        int getNumberOfKeysToDelete(int numVotes)
-        {
+        int getNumberOfKeysToDelete(int numVotes){
             // use of binary search
             // print all the content inside the data blocks, even if the numBVotes is not equal
             // return vector of directory pointer.
             Node * current_node = _root;
             int counter =0;
-            while(!current_node->leaf)
-            {
+            while(!current_node->leaf){
                 int childrenIndex=upper_bound(current_node->keys.begin(),current_node->keys.end(),numVotes)-current_node->keys.begin();
                 current_node=(Node* )current_node->children[childrenIndex];
             }
-
-
             // now reach leaf node
             // keep traversing to the left 23 33 33 33
             //current_node->printAllKeys();
-            
-            while(current_node!=NULL && current_node->keys[0]==numVotes)
-            {
+            while(current_node!=NULL && current_node->keys[0]==numVotes){
                 current_node=current_node->previousLeaf;
-
             } 
-
-            while(current_node!=NULL && current_node->keys[0]<=numVotes)
-            {
-
+            while(current_node!=NULL && current_node->keys[0]<=numVotes){
                 for (int i=0;i<current_node->getNumKeys();i++){
-                if (current_node->keys[i]==numVotes){  
-                counter+=1;
+                    if (current_node->keys[i]==numVotes){  
+                        counter+=1;
+                    }
                 }
-        }
-            current_node=current_node->nextLeaf;
+                current_node=current_node->nextLeaf;
             }
-
             return counter;
-
-
         }
 };
 
