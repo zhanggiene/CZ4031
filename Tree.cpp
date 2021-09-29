@@ -590,8 +590,16 @@ class bTree
             } 
             cout<<"_________________________________________\n";
             cout<<"Top 5 content of the data nodes: "<<endl;
-            current_node->printAllKeys();
+            // current_node->printAllKeys();
             cout<<"debug______";
+
+            // <999 999 999>   if the last element is not 1000, then current got to the next one
+            if (current_node->keys.back()!=numVotes)
+            {
+                current_node=current_node->nextLeaf;
+            }
+
+
             while(current_node!=NULL && current_node->keys[0]<=numVotes)
             {
                 dataNodeNumber+=1;
