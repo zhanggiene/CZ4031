@@ -25,59 +25,89 @@
 
 
 int main(){
-    int n = 7;
-    // Database database("tsv_files/data.tsv", n);
-    // 3 means the maximum number of keys allowed.
-    // Database database("tsv_files/testing2.tsv",3);
-    Database database("tsv_files/data.tsv",7);
+    //100 is the number of bytes for a node
+    //The number of keys in a node is calculated like this
+    //floor((numBytes-numBytesPerValue)/(numBytesPerKey+numBytesPerValue));
+    Database database1("tsv_files/data.tsv",100);
+    Database database2("tsv_files/data.tsv",500);
 
+    
     int choice;
-    cout << "Which experiment resul5t to view? (Type 1-7)\n";
-    cout << "Experiment 1: Store data in disk \n";
-    cout << "Experiment 2: Build a B+ tree on the attribute \"numVotes\"\n";
-    cout << "Experiment 3: Retrieve movies with attribute \"numVotes\" equal to 500\n";
-    cout << "Experiment 4: Retrieve movies with attribute \"numVotes\" from 30,000 to 40,000, both inclusively\n";
-    cout << "Experiment 5:";
+    cout << "Which experiment result to view? (Type 1-10)\n";
+    cout << "Experiment 1: Store data in disk (100 Bytes)\n";
+    cout << "Experiment 2: Build a B+ tree on the attribute \"numVotes\" (100 Bytes)\n";
+    cout << "Experiment 3: Retrieve movies with attribute \"numVotes\" equal to 500 (100 Bytes)\n";
+    cout << "Experiment 4: Retrieve movies with attribute \"numVotes\" from 30,000 to 40,000, both inclusively (100 Bytes)\n";
+    cout << "Experiment 5: Delete those movies with the attribute \"numVotes\" equal to 1,000 (100 Bytes)"<<endl;
+    cout << "Experiment 6: Store data in disk (100 Bytes)\n";
+    cout << "Experiment 7: Build a B+ tree on the attribute \"numVotes\" (500 Bytes)\n";
+    cout << "Experiment 8: Retrieve movies with attribute \"numVotes\" equal to 500 (500 Bytes)\n";
+    cout << "Experiment 9: Retrieve movies with attribute \"numVotes\" from 30,000 to 40,000, both inclusively (500 Bytes)\n";
+    cout << "Experiment 10: Delete those movies with the attribute \"numVotes\" equal to 1,000 (500 Bytes)"<<endl;
     cout << "Choice: ";
 
     cin >> choice;
-
-    while (cin.fail() || choice < 1 || choice > 6 ) {
-        cout << "Please insert a valid integer from 1-6!\n";
-        cout << "Which experiment result to view? (Type 1-6)\n";
+    cout << "================================================================================================================="<<endl;
+    while (cin.fail() || choice < 1 || choice > 10 ) {
+        cout << "Please insert a valid integer from 1-10!\n";
+        cout << "Which experiment result to view? (Type 1-10)\n";
         cin.clear();
         cin.ignore(256,'\n');
         cin >> choice;
     }
     switch(choice){
         case 1:
-            cout << "Experiment 1: Store data in disk\n";
-            database.addAllRecordsWithNoIndex();
+            cout << "Experiment 1: Store data in disk (100 Bytes)\n";
+            database1.addAllRecordsWithNoIndex();
             // database.printBlocks(); //for debugging
             break;
         case 2: 
-            cout << "Experiment 2: Build a B+ tree on the attribute \"numVotes\"\n";
-            database.addToDiskAndBplus();
-            database.experiment2();
+            cout << "Experiment 2: Build a B+ tree on the attribute \"numVotes\" (100 Bytes)\n";
+            database1.addToDiskAndBplus();
+            database1.experiment2();
             // database.printTree(); //for debugging
             // database.printLastRowOfPointers();
             // database.printAllRecords();
             // database.printAllRecordsAccordingToIndex();
             break;
         case 3:
-            cout<<"Experiment 3: Retrieve movies with attribute \"numVotes\" equal to 500\n";
-            database.addToDiskAndBplus();
-            database.experiment3();
+            cout<<"Experiment 3: Retrieve movies with attribute \"numVotes\" equal to 500 (100 Bytes)\n";
+            database1.addToDiskAndBplus();
+            database1.experiment3();
             break;
         case 4:
-            cout<<"Experiment 4: Retrieve movies with attribute \"numVotes\" from 30,000 to 40,000, both inclusively\n";
-            database.addToDiskAndBplus();
-            database.experiment4();
+            cout<<"Experiment 4: Retrieve movies with attribute \"numVotes\" from 30,000 to 40,000, both inclusively (100 Bytes)\n";
+            database1.addToDiskAndBplus();
+            database1.experiment4();
             break;
         case 5:
-            cout<<"Experiment 5: \n";
-            database.addToDiskAndBplus();
-            database.experiment5();
+            cout<<"Experiment 5: Delete those movies with the attribute \"numVotes\" equal to 1,000 (100 Bytes)"<<endl;
+            database1.addToDiskAndBplus();
+            database1.experiment5();
+            break;
+        case 6: 
+            cout << "Experiment 6: Store data in disk (500 Bytes)\n";
+            //TODO:
+            break;
+        case 7:
+            cout << "Experiment 7: Build a B+ tree on the attribute \"numVotes\" (500 Bytes)\n";
+            database2.addToDiskAndBplus();
+            database2.experiment2();
+            break;
+        case 8:
+            cout << "Experiment 8: Retrieve movies with attribute \"numVotes\" equal to 500 (500 Bytes)\n";
+            database2.addToDiskAndBplus();
+            database2.experiment3();
+            break;
+        case 9:
+            cout << "Experiment 9: Retrieve movies with attribute \"numVotes\" from 30,000 to 40,000, both inclusively (500 Bytes)\n";
+            database2.addToDiskAndBplus();
+            database2.experiment4();
+            break;
+        case 10:
+            cout << "Experiment 10: Delete those movies with the attribute \"numVotes\" equal to 1,000 (500 Bytes)"<<endl;
+            database2.addToDiskAndBplus();
+            database2.experiment5();
             break;
         default:
             cout << "Not coded yet";

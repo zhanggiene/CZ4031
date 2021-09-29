@@ -535,6 +535,11 @@ class bTree
             return (temp);
         }
 
+        Node * deleteNode(Node * node){
+            numOfNodes--;
+            free(node);
+        }
+
         int getNumberOfNodes(){
             return numOfNodes;
         }
@@ -689,7 +694,8 @@ class bTree
             return result;
         }
 
-        int deleteOneKey(int key){
+        //deletes returned value so that we can delete it from the disk
+        pair<int,int> * deleteOneKey(int key, int * counter = nullptr){
             int mergeCounter = 0;
 
             cout << "deleted key:"<<key<<endl;
@@ -709,12 +715,16 @@ class bTree
 
             //if the key is found in the leaf node, delete it
             if (indexToDelete!=-1){
+                //Deleted value
+                pair<int,int> * deletedValue = (pair<int,int> *) currentNode->children[indexToDelete];
+
                 currentNode->eraseKey(indexToDelete);
                 currentNode->eraseValue(indexToDelete);
                 
                 //if the current node is a root, deletion is complete
                 if (currentNode == _root){
-                    return mergeCounter;
+                    *counter = mergeCounter;
+                    return deletedValue;
                 } 
                 
                 //if the current node is not the root, 
@@ -782,12 +792,14 @@ class bTree
                         } else {
                             cout << "Error: For root node to become too small, a merging at the nodes before the root should have occured!"<<endl;
                         }
-                        return mergeCounter;
+                        *counter = mergeCounter;
+                        return deletedValue;
                     }
 
                     //if the parentNode is already root, stop repairing
                     if (parentNode==_root){
-                        return mergeCounter;
+                        *counter = mergeCounter;
+                        return deletedValue;
                     }  
 
                     //Go up the tree
@@ -803,9 +815,9 @@ class bTree
 
             } else {
                 cout << "Key is not found in the tree!"<<endl;
-                return mergeCounter;
+                *counter = mergeCounter;
+                return nullptr;
             }
-            
 
         }
 
@@ -1017,7 +1029,7 @@ class bTree
                 }
                 //remove the current node itself
                 parentNode->eraseValue(indexOfCurentNode);
-                free(currentNode);
+                deleteNode(currentNode);
                 //remove extra keys
                 //In this case, (num values of parent -1) = 2-1=1
                 //eg.                 |7|
@@ -1048,7 +1060,7 @@ class bTree
                 leftSibling->children.insert(leftSibling->children.end(), currentNode->children.begin(), currentNode->children.end());
                 //erase current node and key from the parent node
                 parentNode->eraseValue(indexOfCurentNode);
-                free(currentNode);
+                deleteNode(currentNode);
                 parentNode->eraseKey(indexOfLeftSibling);
 
                 cout << endl;
@@ -1082,7 +1094,7 @@ class bTree
                 }
                 //remove the right sibling
                 parentNode->eraseValue(indexOfRightSibling);
-                free(rightSibling);
+                deleteNode(rightSibling);
                 //remove extra key
                 parentNode->eraseKey(indexOfRightSibling-1);
 
@@ -1115,7 +1127,7 @@ class bTree
                 
                 //remove the right sibling
                 parentNode->eraseValue(indexOfRightSibling);
-                free(rightSibling);
+                deleteNode(rightSibling);
                 //remove extra key
                 // parentNode->eraseKey(indexOfRightSibling-1);
                 return currentNode;
