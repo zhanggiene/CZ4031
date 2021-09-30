@@ -7,20 +7,20 @@
 #include <vector>
 #include <utility>
 #include "Record.cpp"
-
+#include "constant.hpp"
 using namespace std;
 
 class Block {
     public:
     int numberSlot;
     int lastPosition;
-    char m[98];
+    char m[constants::BLOCKSIZE-8];
 
 
 
    Block (){
        numberSlot=0;
-       lastPosition=98;
+       lastPosition=constants::BLOCKSIZE-8;
 
    }
 
