@@ -412,16 +412,16 @@ class bTree
                 vector <Node*> traversalNodes;
                 Node * current_node = _root;
                 traversalNodes.push_back(current_node);
-                cout << "Traversed Path: ";
-                current_node->printAllKeys();
+                // cout << "Traversed Path: ";
+                // current_node->printAllKeys();
                 //if it is not a leaf
                 while(!current_node->leaf){
                     int childrenIndex=upper_bound(current_node->keys.begin(),current_node->keys.end(),key)-current_node->keys.begin();
                     current_node=(Node* )current_node->children[childrenIndex];
                     traversalNodes.push_back(current_node);
-                    current_node->printAllKeys();
+                    // current_node->printAllKeys();
                 }
-                cout << endl;
+                // cout << endl;
 
                 return traversalNodes;
         }
@@ -698,7 +698,7 @@ class bTree
         pair<int,int> * deleteOneKey(int key, int * counter = nullptr){
             int mergeCounter = 0;
 
-            cout << "deleted key:"<<key<<endl;
+            // cout << "deleted key:"<<key<<endl;
             //traverse all the way to the bottom of the tree where we delete the key
             vector<Node *> traversedPath = traversalPathOfDeletion(key);
 
@@ -809,7 +809,6 @@ class bTree
                     parentNode = traversedPath.back();
                     traversedPath.pop_back();
 
-                    // cout << "-----------------------------------------"<<endl;
                 }
 
 
@@ -894,13 +893,13 @@ class bTree
         }
 
         void borrowFromLeftSibling(Node * parentNode, Node * currentNode){
-            cout << "borrowFromLeftSibling";
+            // cout << "borrowFromLeftSibling";
             int indexOfCurentNode = getIndexOfValueInNode(parentNode, currentNode);
             int indexOfLeftSibling = indexOfCurentNode-1;
             Node * leftSibling = (Node *)parentNode->children[indexOfLeftSibling];
             //if it is the leaf node, borrow in this way
             if (currentNode->leaf){
-                cout << "-leaf"<<endl;
+                // cout << "-leaf"<<endl;
                 //transfer the last key and value of the left sibling to the right sibling
                 // |1 2 3| |4| -> |1 2| |3 4|
                 int lastKey = leftSibling->keys.back();
@@ -913,7 +912,7 @@ class bTree
             } 
             //if it is the non leaf node, borrow in this way
             else {
-                cout << "-nonleaf"<<endl;
+                // cout << "-nonleaf"<<endl;
                 //transfer the last value of the left sibling to the right sibling
                 // |1 2| |4| -> |1| |otherKey|
                 void * lastValue = leftSibling->children.back();
@@ -944,13 +943,13 @@ class bTree
         }
 
         void borrowFromRightSibling(Node * parentNode, Node * currentNode){
-            cout << "borrowFromRightSibling";
+            // cout << "borrowFromRightSibling";
             int indexOfCurentNode = getIndexOfValueInNode(parentNode, currentNode);
             int indexOfRightSibling = indexOfCurentNode+1;
             Node * rightSibling = (Node *)parentNode->children[indexOfRightSibling];
             //if it is the leaf node, borrow in this way
             if (currentNode->leaf){
-                cout << "-leaf"<<endl;
+                // cout << "-leaf"<<endl;
                 //transfer the first key and value of the right sibling to the left sibling
                 // |1| |2 3 4| -> |1 2| |3 4|
                 int firstKey = rightSibling->keys[0];
@@ -969,7 +968,7 @@ class bTree
             //       |5|               |10|12|              |16|
             // |1|2|6|         |7|8|9| |10|11| |12|13| |14|15| |16|17|
             else{
-                cout << "-nonleaf"<<endl;
+                // cout << "-nonleaf"<<endl;
                 //transfer the first value of the right sibling to the currentNode
                 // |5| |10 12| -> |5| |12|
                 void * rightValue = rightSibling->children[0];
@@ -1007,13 +1006,13 @@ class bTree
 
         //give back the left sibling (for case when parent is root that's small)
         Node * mergeWithLeftSibling(Node * parentNode, Node * currentNode){
-            cout << "mergeWithLeftSibling";
+            // cout << "mergeWithLeftSibling";
             int indexOfCurentNode = getIndexOfValueInNode(parentNode, currentNode);
             int indexOfLeftSibling = indexOfCurentNode-1;
             Node * leftSibling = (Node *)parentNode->children[indexOfLeftSibling];
             
             if (currentNode->leaf){
-                cout << "-leaf";
+                // cout << "-leaf";
                 //add all from currentNode to left sibling
                 leftSibling->keys.insert(leftSibling->keys.end(), currentNode->keys.begin(), currentNode->keys.end());
                 leftSibling->children.insert(leftSibling->children.end(), currentNode->children.begin(), currentNode->children.end());
@@ -1039,7 +1038,7 @@ class bTree
                 //eg.                 |7|
                 //        |5| <--change this key   |10|
                 // |1|2|4|   |5|6|             |7|8|9| |10|11|12|
-                cout << endl;
+                // cout << endl;
                 return leftSibling;
             } 
             //if currentNode is a nonleaf node, we need to fix the first key of currentNode
@@ -1047,7 +1046,7 @@ class bTree
             //      |7|                || <--fix this
             //  |1|4| |7|10| |20|21|25|
             else {
-                cout << "-nonleaf";
+                // cout << "-nonleaf";
                 //eg.                          |7|14|
                 //       |7|10|12| | <-- add in a key
                 // |1|2|6|   |7|8|9| |10|11| |12|13| |14|15|17|
@@ -1063,20 +1062,20 @@ class bTree
                 deleteNode(currentNode);
                 parentNode->eraseKey(indexOfLeftSibling);
 
-                cout << endl;
+                // cout << endl;
                 return leftSibling;
             }
         }
 
         Node * mergeWithRightSibling(Node * parentNode, Node * currentNode){
-            cout << "mergeWithRightSibling";
+            // cout << "mergeWithRightSibling";
             int indexOfCurrentNode = getIndexOfValueInNode(parentNode, currentNode);
             
             int indexOfRightSibling = indexOfCurrentNode+1;
             Node * rightSibling = (Node *)parentNode->children[indexOfRightSibling];
 
             if (currentNode->leaf){
-                cout << "-leaf"<<endl;
+                // cout << "-leaf"<<endl;
                 //add all right sibling keys and values into current node
                 currentNode->keys.insert(currentNode->keys.end(), rightSibling->keys.begin(), rightSibling->keys.end());
                 currentNode->children.insert(currentNode->children.end(), rightSibling->children.begin(), rightSibling->children.end());
@@ -1099,7 +1098,7 @@ class bTree
                 return currentNode;
             } 
             else{
-                cout << "-nonleaf"<<endl;
+                // cout << "-nonleaf"<<endl;
                 int smallestLeafKeyOfRightSibling = smallestLeafKeyOfRightSubtree(rightSibling);
                 currentNode->keys[currentNode->getNumKeys()-1] = smallestLeafKeyOfRightSibling;
                 //add all right sibling keys and values into current node
