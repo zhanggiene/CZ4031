@@ -39,7 +39,7 @@ int main(){
     cout << "Experiment 3: Retrieve movies with attribute \"numVotes\" equal to 500 (100 Bytes)\n";
     cout << "Experiment 4: Retrieve movies with attribute \"numVotes\" from 30,000 to 40,000, both inclusively (100 Bytes)\n";
     cout << "Experiment 5: Delete those movies with the attribute \"numVotes\" equal to 1,000 (100 Bytes)"<<endl;
-    cout << "Experiment 6: Store data in disk (100 Bytes)\n";
+    cout << "Experiment 6: Store data in disk (500 Bytes)\n";
     cout << "Experiment 7: Build a B+ tree on the attribute \"numVotes\" (500 Bytes)\n";
     cout << "Experiment 8: Retrieve movies with attribute \"numVotes\" equal to 500 (500 Bytes)\n";
     cout << "Experiment 9: Retrieve movies with attribute \"numVotes\" from 30,000 to 40,000, both inclusively (500 Bytes)\n";
