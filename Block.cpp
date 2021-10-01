@@ -14,13 +14,15 @@ class Block {
     public:
     int numberSlot;
     int lastPosition;
-    char m[constants::BLOCKSIZE-8];
+    int size;
+    char* m;
 
 
 
-   Block (){
+   Block (int x) : m(new char[x-8]){
+       size=x;
        numberSlot=0;
-       lastPosition=constants::BLOCKSIZE-8;
+       lastPosition=x-8;
 
    }
 
@@ -92,7 +94,7 @@ class Block {
 
         cout<<"\n";
 
-       for(int i=lastPosition;i+sizeof(Record)<=98;i+=(sizeof(Record)))
+       for(int i=lastPosition;i+sizeof(Record)<=size-8;i+=(sizeof(Record)))
        {
            Record temp= *(Record *) (m+i);
            cout<<temp.toString();

@@ -19,7 +19,7 @@ class Disk
     unordered_set<int> unoccupiedblocks;
 
     Disk (){
-        blocks.push_back(Block());
+        blocks.push_back(Block(500));
 
     }
 
@@ -64,7 +64,7 @@ class Disk
 
     int getBlockSizeinByte()
     {
-        if (blocks.size()>0) return sizeof(blocks[0]);
+        if (blocks.size()>0) return blocks[0].size;
         else return 0;
     }
 
@@ -92,7 +92,7 @@ class Disk
         if (recordId==-1)
         {
             // cout<<"disk overflow \n";
-            blocks.push_back(Block());
+            blocks.push_back(Block(500));
             recordId=blocks.back().add(temp);
         }
         //cout<<"inserting into "<<blocks.size()-1<<recordId;

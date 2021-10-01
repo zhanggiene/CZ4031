@@ -5,9 +5,7 @@ with open("tsv_files/data.tsv") as f:
     for line in lines:
         rating=float(line.split("\t")[1])
         voteN=int(line.split("\t")[2])
-        if (voteN==1000):
-            SUM+=rating
-            SIZE+=1
+        SIZE+=1
     print(SIZE)
     print(SUM/SIZE)
 
