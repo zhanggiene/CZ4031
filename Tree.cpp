@@ -573,12 +573,12 @@ class bTree
             int counterData=5;
             int indexNodeNumber=0;
             int dataNodeNumber=0;
-            cout<<"Top 5 content of the index node: "<<endl;
+            cout<<"Content of top 5 index node: "<<endl;
 
             while(!current_node->leaf)
             {
                 indexNodeNumber+=1;
-                if (true){ //first 5
+                if (counterIndex>0){ //first 5
                     current_node->printAllKeys();
                 }
                 if (counterIndex>0) {counterIndex-=1;}
@@ -593,14 +593,15 @@ class bTree
             
             while(current_node!=NULL && current_node->keys[0]==numVotes)
             {
-                current_node->printAllKeys();
+                // current_node->printAllKeys();
                 current_node=current_node->previousLeaf;
 
             } 
-            cout<<"_________________________________________\n";
-            cout<<"Top 5 content of the data nodes: "<<endl;
+            // cout<<"_________________________________________\n";
+            
+
             // current_node->printAllKeys();
-            cout<<"debug______";
+            // cout<<"debug______";
 
             // <999 999 999>   if the last element is not 1000, then current got to the next one
             if (current_node->keys.back()!=numVotes)
@@ -613,8 +614,8 @@ class bTree
             {
                 dataNodeNumber+=1;
                 if (counterData>0){
-                    current_node->printAllKeys();
-                    current_node->printAllChildren();
+                    // current_node->printAllKeys();
+                    // current_node->printAllChildren();
                     counterData-=1;
                 }
 
@@ -628,7 +629,9 @@ class bTree
             current_node=current_node->nextLeaf;
             }
 
-            cout<<"\nTotal number of data nodes: "<<dataNodeNumber<<endl;
+            
+
+            // cout<<"\nTotal number of data nodes: "<<dataNodeNumber<<endl;
             return result;
 
 
@@ -646,7 +649,7 @@ class bTree
             int counterData=5;
             int indexNodeNumber=0;
             int dataNodeNumber=0;
-            cout<<"Top 5 content of the index Node: "<<endl;
+            cout<<"Content of top 5 index nodes: "<<endl;
 
             while(!current_node->leaf)
             {
@@ -658,8 +661,8 @@ class bTree
             }
             cout<<"Total number of index nodes: "<<indexNodeNumber<<endl;
 
-            cout<<endl;
-            cout<<"Top 5 content of the dataNode: "<<endl;
+            // cout<<endl;
+            // cout<<"Content of t the dataNode: "<<endl;
             // now reach leaf node
             // keep traversing to the left 23 33 33 33
             //current_node->printAllKeys();
@@ -675,8 +678,8 @@ class bTree
             {
                 dataNodeNumber+=1;
                 if (counterData>0){
-                    current_node->printAllKeys();
-                    current_node->printAllChildren();
+                    // current_node->printAllKeys();
+                    // current_node->printAllChildren();
                     counterData-=1;
                 }
 
@@ -689,8 +692,8 @@ class bTree
         }
             current_node=current_node->nextLeaf;
             }
-
-            cout<<"Total number of data nodes: "<<dataNodeNumber<<endl;
+            cout << endl;
+            // cout<<"Total number of data nodes: "<<dataNodeNumber<<endl;
             return result;
         }
 

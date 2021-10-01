@@ -87,7 +87,7 @@ int main(){
             break;
         case 6: 
             cout << "Experiment 6: Store data in disk (500 Bytes)\n";
-            //TODO:
+            database2.addAllRecordsWithNoIndex();
             break;
         case 7:
             cout << "Experiment 7: Build a B+ tree on the attribute \"numVotes\" (500 Bytes)\n";

@@ -19,10 +19,10 @@ class Block {
 
 
 
-   Block (int x) : m(new char[x-8]){
+   Block (int x) : m(new char[x-2]){
        size=x;
        numberSlot=0;
-       lastPosition=x-8;
+       lastPosition=x-2;
 
    }
 
@@ -93,15 +93,13 @@ class Block {
        }
 
         cout<<"\n";
-
-       for(int i=lastPosition;i+sizeof(Record)<=size-8;i+=(sizeof(Record)))
+        cout << "tconst\taverageRating\tnumVotes"<<endl;
+       for(int i=lastPosition;i+sizeof(Record)<=size-2;i+=(sizeof(Record)))
        {
            Record temp= *(Record *) (m+i);
            cout<<temp.toString();
        }
-   }
-
-    
+   }    
 
 };
 

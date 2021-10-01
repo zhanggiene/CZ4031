@@ -37,7 +37,7 @@ class Database {
             this->filename= filename;
             int numKeys = numberOfKeysInBplusTree(numBytes);
             this->btree = new bTree(numKeys);
-            this->disk = new Disk();
+            this->disk = new Disk(numBytes);
         } 
 
         //For experiment 1:
@@ -63,7 +63,7 @@ class Database {
             cout << "Total Number of Blocks: " << numBlocks <<"\n";
             //the size of database (in terms of MB)
             int blocksize = disk->getBlockSizeinByte();
-            cout<<"the block size is "<<blocksize;
+            // cout<<"the block size is "<<blocksize;
             float mb = (float(numBlocks * blocksize) / float(1024*1024));
             cout <<  "Size of database (in terms of MB): " << mb << "\n";
         }
@@ -109,63 +109,75 @@ class Database {
         void experiment3()
         {
             vector<pair<int,int> > result=btree->search(500);
-            cout<<endl;
             float SUM=0;
 
             vector<float> allRatings;
             vector<float> allnumVotes;
-            cout<<"Size of result: "<<result.size()<<"\n";
+            // cout<<"Size of result: "<<result.size()<<"\n";
+            cout<<"Content of top 5 data blocks accessed: "<<endl;
+            int counter = 0;
             for(auto x: result)
             {
-                cout<< "<"<<x.first<<","<<x.second<<">"<<",";
+                //print out the top 5 the datablocks
+                if (counter<5){
+                    cout << "Data block "<<counter<<":"<<endl;
+                    disk->getBlock(x.first).print();
+                }
+                // cout<< "<"<<x.first<<","<<x.second<<">"<<",";
                 float temp=disk->getRecord(x.first,x.second).rating;
                 int temp2=disk->getRecord(x.first,x.second).numVotes;
                 allRatings.push_back(temp);
                 allnumVotes.push_back(temp2);
+                counter++;
             }
-            cout << endl;
+            // cout << endl;
             for(auto x: allRatings){
                 SUM+=x;
-                cout <<x<<",";
+                // cout <<x<<",";
             } 
-            cout << endl;
-            for(auto x: allnumVotes){
-                cout <<x<<",";
-            }
-            cout <<"sum:" << SUM<<endl;
-            cout<<"Number of records: "<<allRatings.size()<<"\n";
+            // cout << endl;
+            // for(auto x: allnumVotes){
+            //     cout <<x<<",";
+            // }
+            // cout <<"sum:" << SUM<<endl;
+            cout<<"Number of data blocks accessed: "<<allRatings.size()<<"\n";
             cout<<"Average of \"averageRating\"s of the records: "<<SUM/allRatings.size()<<"\n";
         }
 
          void experiment4()
         {
-
-
             vector<pair<int,int> > result=btree->searchRange(30000,40000);
-            cout<<endl;
+
             float SUM=0;
+            int counter = 0;
 
             vector<float> allRatings;
             vector<float> allnumVotes;
-            cout<<"size of result is"<<result.size();
+            // cout<<"size of result is"<<result.size();
             for(auto x: result)
             {
+                //print out the top 5 the datablocks
+                if (counter<5){
+                    cout << "Data block "<<counter<<":"<<endl;
+                    disk->getBlock(x.first).print();
+                }
                 float temp=disk->getRecord(x.first,x.second).rating;
                 allRatings.push_back(temp);
                 int temp2=disk->getRecord(x.first,x.second).numVotes;
                 allnumVotes.push_back(temp2);
+                counter++;
             }
             for(auto x: allRatings){
                 SUM+=x;
-                cout <<x<<",";
+                // cout <<x<<",";
             } 
-            cout << endl;
-            for(auto x: allnumVotes){
-                cout <<x<<",";
-            }
-            cout <<"sum:" << SUM<<endl;
-            cout<<"number of records is"<<allRatings.size();
-            cout<<"the average of “averageRating’s” of the records: is "<<SUM/allRatings.size();
+            // cout << endl;
+            // for(auto x: allnumVotes){
+            //     cout <<x<<",";
+            // }
+            // cout <<"sum:" << SUM<<endl;
+            cout<<"Number of data blocks the process accesses: "<<allRatings.size()<<endl;
+            cout<<"Average of \"averageRatings\" of the records: "<<SUM/allRatings.size()<<endl;
         }
 
         //Experiment 5: delete those movies with the attribute “numVotes” equal to1,000, update the B+ tree accordingly, and report the following statistics:

@@ -14,12 +14,16 @@
 using namespace std;
 class Disk
 {
-    public: vector<Block> blocks;
+    public: 
+    vector<Block> blocks;
     list<pair<int,int> > directory;
     unordered_set<int> unoccupiedblocks;
+    int numBytes;
+    
 
-    Disk (){
-        blocks.push_back(Block(500));
+    Disk (int numBytes){
+        this->numBytes = numBytes;
+        blocks.push_back(Block(this->numBytes));
 
     }
 
@@ -64,7 +68,7 @@ class Disk
 
     int getBlockSizeinByte()
     {
-        if (blocks.size()>0) return blocks[0].size;
+        if (blocks.size()>0) return blocks.back().size;
         else return 0;
     }
 
@@ -92,7 +96,7 @@ class Disk
         if (recordId==-1)
         {
             // cout<<"disk overflow \n";
-            blocks.push_back(Block(500));
+            blocks.push_back(Block(this->numBytes));
             recordId=blocks.back().add(temp);
         }
         //cout<<"inserting into "<<blocks.size()-1<<recordId;
@@ -107,6 +111,10 @@ class Disk
         {
             blocks[i].print();
         }
+    }
+
+    Block getBlock(int i){
+        return blocks[i];
     }
 
 };
